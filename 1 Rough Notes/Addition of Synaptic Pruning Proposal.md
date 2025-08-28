@@ -51,8 +51,8 @@ Synaptic pruning improves **precision in high dimensions**, speeds up **converge
 | **IICO**  | Weak on constrained functions (CEC)                            | ⚠️ Partial    | SP maintains diverse feasible solutions by pruning redundant ones, but constraint handling requires specialized operators.                                           |
 ### Algorithm Proposal (With IICO as the main, since its more advance iteration/extension of CSA)
 
-> ```
-> [IICO]  Input f, dimension d, population size N, elite size m, immigrant rate r_fresh
+---start---
+[IICO]  Input f, dimension d, population size N, elite size m, immigrant rate r_fresh
 [IICO]  Initialize population P = {x_i}^N from prior
 [IICO]  Initialize memory M as empty
 [IICO]  Initialize activity traces a_i = 0 for all x_i in P and for future memory items
@@ -99,5 +99,4 @@ Synaptic pruning improves **precision in high dimensions**, speeds up **converge
 
 [IICO]  end while
 
-> ```
-
+---end---
