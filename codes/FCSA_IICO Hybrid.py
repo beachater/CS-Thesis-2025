@@ -353,8 +353,6 @@ def run_experiments(func, func_name, runs=100, dim=30):
     print(f"Average Optimal Solution: {results.mean()}")
     print(f"Maximum Optimal Solution: {results.max()}")
     print(f"Minimum Optimal Solution: {results.min()}")
-
-
 # ===============================
 # Main
 # ===============================
