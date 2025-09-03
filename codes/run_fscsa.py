@@ -1,6 +1,7 @@
 
 import numpy as np
 from fscsa import FSCSA
+from fscsa_sp_qmc_manual import FSCSASPQMC
 import benchmark as bm
 import matplotlib.pyplot as plt
 
@@ -12,7 +13,7 @@ os.makedirs("fig", exist_ok=True)
 func = bm.get_function_by_name('Ackley')
 dim = 2
 
-algo = FSCSA(func=func, dim=dim, N=50, n_select=10, n_clones=5, m=2.0, c=3.0, max_iters=1000, seed=42)
+algo = FSCSASPQMC(func=func, dim=dim, N=50, n_select=10, n_clones=5, m=2.0, c=3.0, max_iters=1000, seed=42)
 best_x, best_f, history = algo.optimize()
 
 print('Best fitness:', best_f)
