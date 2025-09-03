@@ -1,199 +1,192 @@
-import numpy as np
+from __future__ import annotations
+
+import math
 import random
 from dataclasses import dataclass
-from typing import Callable, Tuple, List
+from typing import Callable, List, Tuple
+import numpy as np
 
-# --------------------------
-# Antibody representation
-# --------------------------
+
+# -----------------------------
+# Data structures
+# -----------------------------
 @dataclass
 class Antibody:
-    x: np.ndarray        # position (candidate solution)
-    fitness: float       # objective value
-    affinity: float      # affinity = inverse of fitness
-    T: int = 0           # survival time (how long antibody has existed)
-    S: int = 0           # memory intensity (how many times selected for cloning)
+    x: np.ndarray                # position
+    affinity: float              # higher is better (we use -objective)
+    T: int = 0                   # survival time
+    S: int = 0                   # appropriate memory strength
 
 
-# --------------------------
-# FSCSA main class
-# --------------------------
-class FSCSA:
-    """Forgetful Clonal Selection Algorithm (practical Python version).
-    Implements Yang et al. (2020) flow:
-    selection -> cloning -> variation -> replacement -> forgetting (Rac1 activity).
+# -----------------------------
+# FCSA implementation
+# -----------------------------
+class FCSA:
+    """
+    FCSA: Improved Clonal Selection with biological forgetting.
+
+    Parameters closely follow the paper:
+      N .............. population size
+      n_select ....... number selected for cloning each generation
+      n_clones ....... maximum clones per selected parent
+      r .............. mutation rate used inside exp in Eq.(3)
+      a_frac ......... variation range as a fraction of domain width
+      c_threshold .... Rac1 activity threshold in Eq.(4)
+      max_gens ....... termination condition (generations)
     """
 
-    def __init__(self, func: Callable[[np.ndarray], Tuple[float,float,float]],
-                 dim: int, N: int=50, n_select: int=10, n_clones: int=5,
-                 m: float=2.0, c: float=3.0, max_iters: int=1000, seed: int=None):
-        # Benchmark function to minimize
+    def __init__(
+        self,
+        func: Callable[[np.ndarray], float],
+        bounds: List[Tuple[float, float]],
+        N: int = 60,
+        n_select: int = 15,
+        n_clones: int = 5,
+        r: float = 2.0,
+        a_frac: float = 0.15,
+        c_threshold: float = 3.0,
+        max_gens: int = 500,
+        seed: int | None = 42,
+    ):
         self.func = func
-        # Problem dimensionality
-        self.dim = dim
-        # Population size (number of antibodies)
-        self.N = N
-        # Number of best antibodies selected each generation
-        self.n_select = n_select
-        # Maximum clone count per selected antibody
-        self.n_clones = n_clones
-        # Degree of variation (controls mutation strength)
-        self.m = m
-        # Forgetting threshold (Rac1 activity level)
-        self.c = c
-        # Maximum iterations (termination)
-        self.max_iters = max_iters
+        self.bounds = np.array(bounds, dtype=float)
+        self.dim = len(bounds)
 
-        # Optional: fix random seed for reproducibility
+        self.N = N
+        self.n_select = max(1, min(n_select, N))
+        self.n_clones = max(1, n_clones)
+        self.r = float(r)
+        self.a_frac = float(a_frac)
+        self.c_threshold = float(c_threshold)
+        self.max_gens = max_gens
+
         if seed is not None:
             np.random.seed(seed)
             random.seed(seed)
 
-        # Get function bounds (lb, ub) from benchmark function definition
-        f0, lb, ub = self.func(np.zeros(dim))
-        self.lb = lb
-        self.ub = ub
+        self.widths = self.bounds[:, 1] - self.bounds[:, 0]
+        self.a_vec = self.a_frac * self.widths  # variation range per dim
+        self.history_best = []
 
-        # Store convergence curve
-        self.history = []
+    # --------- helpers ---------
+    def _objective(self, x: np.ndarray) -> float:
+        return float(self.func(x))
 
-    # --------------------------
-    # Fitness evaluation
-    # --------------------------
-    def _fitness(self, x: np.ndarray) -> float:
-        y, _, _ = self.func(x)   # benchmark returns (fitness, lb, ub)
-        return float(y)
+    def _affinity(self, x: np.ndarray) -> float:
+        # Maximize opposite of the test function
+        return -self._objective(x)
 
-    # --------------------------
-    # Affinity measure
-    # --------------------------
-    def _affinity(self, fitness: float) -> float:
-        # Higher affinity = better antibody (lower fitness)
-        return 1.0 / (1.0 + max(fitness, 0.0))
+    def _clip(self, x: np.ndarray) -> None:
+        np.clip(x, self.bounds[:, 0], self.bounds[:, 1], out=x)
 
-    # --------------------------
-    # Boundary handling
-    # --------------------------
-    def _clip(self, x):
-        # Force values back into search space [lb, ub]
-        return np.clip(x, self.lb, self.ub)
+    def _sample_uniform(self) -> np.ndarray:
+        return self.bounds[:, 0] + np.random.rand(self.dim) * self.widths
 
-    # --------------------------
-    # Initialize antibody population
-    # --------------------------
+    # --------- Algorithm 1: steps (2), (4) ---------
     def _init_population(self) -> List[Antibody]:
-        pop = []
+        pop: List[Antibody] = []
         for _ in range(self.N):
-            # Random position within bounds
-            x = np.random.uniform(self.lb, self.ub, self.dim)
-            fit = self._fitness(x)
-            aff = self._affinity(fit)
-            # New antibody starts with T=0 (just born), S=0 (never cloned yet)
-            pop.append(Antibody(x=x, fitness=fit, affinity=aff, T=0, S=0))
+            x = self._sample_uniform()
+            pop.append(Antibody(x=x, affinity=self._affinity(x), T=0, S=0))
         return pop
 
-    # --------------------------
-    # Cloning process
-    # --------------------------
+    # --------- Steps (5)-(8): select, update memory, clone ---------
+    def _select_top(self, pop: List[Antibody]) -> List[Antibody]:
+        pop_sorted = sorted(pop, key=lambda ab: ab.affinity, reverse=True)
+        return pop_sorted[: self.n_select]
+
     def _clone(self, selected: List[Antibody]) -> List[Antibody]:
-        # Clone count proportional to normalized affinity
         if not selected:
             return []
-        max_aff = max(ab.affinity for ab in selected)
-        clones = []
-        for ab in selected:
-            ab.S += 1  # memory intensity increases when selected
-            ratio = ab.affinity / (max_aff + 1e-12)
-            k = max(1, int(round(self.n_clones * ratio)))  # at least one clone
+
+        # normalize affinities among selected to [0,1]
+        affs = np.array([ab.affinity for ab in selected], dtype=float)
+        if affs.ptp() == 0:
+            norm = np.ones_like(affs)
+        else:
+            norm = (affs - affs.min()) / affs.ptp()
+
+        clones: List[Antibody] = []
+        for ab, a in zip(selected, norm):
+            ab.S += 1                       # step (7): memory += 1
+            k = max(1, int(round(1 + a * (self.n_clones - 1))))  # proportional to affinity
             for _ in range(k):
-                # Copy antibody (clones start identical to parent)
-                clones.append(Antibody(x=ab.x.copy(), fitness=ab.fitness,
-                                       affinity=ab.affinity, T=ab.T, S=ab.S))
+                clones.append(Antibody(x=ab.x.copy(), affinity=ab.affinity, T=ab.T, S=ab.S))
         return clones
 
-    # --------------------------
-    # Mutation (variation step)
-    # --------------------------
-    def _mutate(self, clones: List[Antibody]) -> None:
-        # Gaussian noise scaled by affinity and variation degree
-        scale_base = (self.ub - self.lb) * 0.1  # mutation base scale = 10% of range
+    # --------- Steps (9)-(14): variation (Eq.3) and reset flags ---------
+    def _mutate_variation(self, clones: List[Antibody]) -> None:
+        if not clones:
+            return
+        max_aff = max(ab.affinity for ab in clones)
+        max_aff = max(max_aff, 1e-12)
+
         for ab in clones:
-            # Better antibodies mutate less (since affinity ~ 1/fitness)
-            step = scale_base * ((1.0 - ab.affinity) ** self.m)
-            if step < 1e-12:
-                step = 1e-12  # safeguard
-            noise = np.random.normal(loc=0.0, scale=step, size=self.dim)
-            x_new = self._clip(ab.x + noise)
-            fit = self._fitness(x_new)
-            aff = self._affinity(fit)
-            # Replace clone with mutated values
-            ab.x, ab.fitness, ab.affinity = x_new, fit, aff
+            # per-dimension Bernoulli gate with probability exp(-r * aff / max_aff)
+            p = math.exp(-self.r * (ab.affinity / max_aff))
+            mask = np.random.rand(self.dim) < p
+            if np.any(mask):
+                # uniform step in [-a, a] on the masked dimensions
+                step = np.random.uniform(-self.a_vec, self.a_vec)
+                ab.x = ab.x + mask.astype(float) * step
+                self._clip(ab.x)
+                ab.affinity = self._affinity(ab.x)
+                # step (11)-(13): if variant, reset T and set S to 1
+                ab.T = 0
+                ab.S = 1
 
-    # --------------------------
-    # Replacement (survivor selection)
-    # --------------------------
-    def _replace(self, pop: List[Antibody], offspring: List[Antibody]) -> List[Antibody]:
-        # Increase survival time of old antibodies
-        for ab in pop:
-            ab.T += 1
-        # Merge parents and offspring, keep best N
-        union = pop + offspring
-        union.sort(key=lambda a: a.fitness)
-        new_pop = [Antibody(x=a.x, fitness=a.fitness, affinity=a.affinity, T=a.T, S=a.S)
-                   for a in union[:self.N]]
-        return new_pop
+    # --------- Step (15): elitist replacement from parents+clones ---------
+    def _downselect(self, parents: List[Antibody], clones: List[Antibody]) -> List[Antibody]:
+        pool = parents + clones
+        pool.sort(key=lambda ab: ab.affinity, reverse=True)
+        return [pool[i] for i in range(self.N)]
 
-    # --------------------------
-    # Forgetting mechanism (Rac1 activity)
-    # --------------------------
-    def _forgetting(self, pop: List[Antibody]) -> None:
-        # Rac1 activity = survival time / memory intensity
+    # --------- Steps (16)-(19): forgetting (Eq.4) ---------
+    def _forget_in_place(self, pop: List[Antibody]) -> None:
         for i, ab in enumerate(pop):
-            if ab.S == 0:  # never selected before
-                activity = float('inf') if ab.T > 0 else 0.0
+            # Rac1 activity proxy: T / S
+            if ab.S <= 0:
+                activity = float("inf") if ab.T > 0 else 0.0
             else:
-                activity = ab.T / ab.S
-            if activity > self.c:
-                # Forget this antibody: reinitialize randomly
-                x = np.random.uniform(self.lb, self.ub, self.dim)
-                fit = self._fitness(x)
-                aff = self._affinity(fit)
-                pop[i] = Antibody(x=x, fitness=fit, affinity=aff, T=0, S=0)
+                activity = ab.T / float(ab.S)
 
-    # --------------------------
-    # Main optimization loop
-    # --------------------------
-    def optimize(self):
-        # 1. Initialize population
+            if activity > self.c_threshold:
+                # forget this antibody → reinitialize uniformly in domain
+                x = self._sample_uniform()
+                pop[i] = Antibody(x=x, affinity=self._affinity(x), T=0, S=0)
+
+    # --------- Main loop ---------
+    def minimize(self) -> Tuple[np.ndarray, float, dict]:
+        # Step (2)
         pop = self._init_population()
-        best = min(pop, key=lambda a: a.fitness)
-        self.history = [best.fitness]
 
-        # 2. Repeat for max_iters
-        for it in range(1, self.max_iters + 1):
-            # Selection: choose best antibodies
-            pop.sort(key=lambda a: a.fitness)
-            selected = pop[:self.n_select]
+        # Loop Step (3)
+        for gen in range(self.max_gens):
+            # Step (4): record survival time
+            for ab in pop:
+                ab.T += 1
 
-            # Cloning
+            # Step (5): select top n
+            selected = self._select_top(pop)
+
+            # Steps (6)-(8): memory update and cloning
             clones = self._clone(selected)
 
-            # Variation (mutation of clones)
-            self._mutate(clones)
+            # Steps (9)-(14): variation and resets
+            self._mutate_variation(clones)
 
-            # Replacement (elitist: keep best N from parents+clones)
-            pop = self._replace(pop, clones)
+            # Step (15): choose best N from parents + clones
+            pop = self._downselect(pop, clones)
 
-            # Forgetting (biological forgetting mechanism)
-            self._forgetting(pop)
+            # Steps (16)-(19): forgetting
+            self._forget_in_place(pop)
 
-            # Track global best solution
-            current_best = min(pop, key=lambda a: a.fitness)
-            if current_best.fitness < best.fitness:
-                best = Antibody(x=current_best.x.copy(), fitness=current_best.fitness,
-                                affinity=current_best.affinity, T=current_best.T, S=current_best.S)
+            # Track best for convergence curve
+            best = max(pop, key=lambda ab: ab.affinity)
+            self.history_best.append((-best.affinity, best.x.copy()))
 
-            self.history.append(best.fitness)
-
-        # Return: best solution vector, fitness, and convergence curve
-        return best.x, best.fitness, self.history
+        best = max(pop, key=lambda ab: ab.affinity)
+        return best.x.copy(), -best.affinity, {
+            "generations": self.max_gens,
+            "history": self.history_best,
+        }
