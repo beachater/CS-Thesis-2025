@@ -6,7 +6,17 @@ from dataclasses import dataclass
 from typing import Callable, List, Tuple, Dict, Any
 import numpy as np
 
+# Sobol QMC
+try:
+    from scipy.stats import qmc
+    _HAS_SCIPY_QMC = True
+except Exception:
+    _HAS_SCIPY_QMC = False
 
+
+# ===============================
+# Antibody data structure
+# ===============================
 @dataclass
 class Antibody:
     x: np.ndarray
@@ -15,15 +25,17 @@ class Antibody:
     S: int = 0
 
 
+# ===============================
+# HybridCSA with Sobol QMC init
+# ===============================
 class HybridCSA:
     """
     Hybrid Clonal Selection that combines:
-      1) Biological forgetting using a Rac1 style T/S activity rule
-      2) Quasi Opposition Based Learning (QOBL)
-      3) Adaptive Parameter Strategy (IICO-style schedules)
-      4) Quasi Reflection Based Learning (QRBL)
-
-    Minimize func(x); bounds is a list of (low, high).
+      1) Rac1-style forgetting (T/S threshold)
+      2) Quasi-Opposition Based Learning (QOBL)
+      3) Adaptive parameter schedule (IICO-style)
+      4) Quasi-Reflection Based Learning (QRBL)
+      5) Sobol QMC initialization (scrambled)
     """
 
     def __init__(
@@ -43,6 +55,8 @@ class HybridCSA:
         beta: float = 100.0,
         gamma: float = 1e-19,
         max_stagnation: int = 3,
+        use_qmc: bool = True,
+        qmc_engine: str = "sobol",
     ):
         self.func = func
         self.bounds = np.array(bounds, dtype=float)
@@ -61,6 +75,10 @@ class HybridCSA:
         self.beta = float(beta)
         self.gamma = float(gamma)
         self.max_stagnation = int(max_stagnation)
+
+        self.use_qmc = bool(use_qmc)
+        self.qmc_engine = qmc_engine.lower().strip()
+        self.seed = seed
 
         if seed is not None:
             np.random.seed(seed)
@@ -86,11 +104,31 @@ class HybridCSA:
     def _sample_uniform(self) -> np.ndarray:
         return self.bounds[:, 0] + np.random.rand(self.dim) * self.widths
 
+    # ---------- Sobol QMC initializer ----------
+    def _qmc_population_init(self) -> np.ndarray:
+        if not _HAS_SCIPY_QMC:
+            raise ImportError("Sobol QMC requires scipy>=1.7. Install with: pip install scipy")
+        # Owen-scrambled Sobol; use power-of-two count for best uniformity, then slice to N
+        m = int(math.ceil(math.log2(max(2, self.N))))
+        sampler = qmc.Sobol(d=self.dim, scramble=True, seed=self.seed)
+        U = sampler.random_base2(m=m)   # shape: (2**m, dim) in [0,1)
+        U = U[: self.N, :]
+        X = qmc.scale(U, self.bounds[:, 0], self.bounds[:, 1])
+        return X
+
     def _population_init(self) -> List[Antibody]:
         pop: List[Antibody] = []
-        for _ in range(self.N):
-            x = self._sample_uniform()
-            pop.append(Antibody(x=x, affinity=self._affinity(x), T=0, S=0))
+        if self.use_qmc:
+            if self.qmc_engine != "sobol":
+                raise ValueError(f"Unsupported qmc_engine '{self.qmc_engine}'. Use 'sobol'.")
+            X0 = self._qmc_population_init()
+            for i in range(self.N):
+                x = X0[i]
+                pop.append(Antibody(x=x, affinity=self._affinity(x), T=0, S=0))
+        else:
+            for _ in range(self.N):
+                x = self._sample_uniform()
+                pop.append(Antibody(x=x, affinity=self._affinity(x), T=0, S=0))
         return pop
 
     def _select_top(self, pop: List[Antibody]) -> List[Antibody]:
@@ -101,7 +139,7 @@ class HybridCSA:
         elites = sorted(pop, key=lambda ab: ab.affinity, reverse=True)[:k]
         affs = np.array([ab.affinity for ab in elites], dtype=float)
 
-        if np.ptp(affs) == 0.0:
+        if np.ptp(affs) == 0.0:  # NumPy 2.0 compatible
             weights = np.ones_like(affs)
         else:
             weights = (affs - affs.min()) / (np.ptp(affs) + 1e-12)
@@ -128,7 +166,7 @@ class HybridCSA:
                 clones.append(Antibody(x=ab.x.copy(), affinity=ab.affinity, T=ab.T, S=ab.S))
         return clones
 
-    # ---------- Learning operators ----------
+    # ---------- learning operators ----------
     def _qobl(self, x: np.ndarray) -> np.ndarray:
         opposite = self.bounds[:, 0] + self.bounds[:, 1] - x
         lows = np.minimum(self.mid, opposite)
@@ -140,7 +178,7 @@ class HybridCSA:
         highs = np.maximum(self.mid, x)
         return lows + np.random.rand(self.dim) * (highs - lows)
 
-    # ---------- Forgetting (Rac1 surrogate) ----------
+    # ---------- forgetting ----------
     def _forget_in_place(self, pop: List[Antibody]) -> None:
         for i, ab in enumerate(pop):
             if ab.S <= 0:
@@ -151,7 +189,7 @@ class HybridCSA:
                 x = self._sample_uniform()
                 pop[i] = Antibody(x=x, affinity=self._affinity(x), T=0, S=0)
 
-    # ---------- Main loop ----------
+    # ---------- main loop ----------
     def minimize(self) -> Tuple[np.ndarray, float, Dict[str, Any]]:
         pop = self._population_init()
 
@@ -179,7 +217,6 @@ class HybridCSA:
                 beta = -math.log(10.0 * self.gamma) * k / max(1, gen)
                 Z = math.exp(-beta * gen / k)
 
-            # keep schedules (currently alpha_iter not directly used in a probability)
             sigma_iter = ((k - gen) / max(1.0, (k - 1))) ** self.exponent * (self.sigma_initial - self.sigma_final) + self.sigma_final
             alpha_iter = 10.0 * math.log(max(1e-9, self.M)) * Z
             if not np.isfinite(alpha_iter):
@@ -193,26 +230,21 @@ class HybridCSA:
                 max_aff = max(max_aff, 1e-12)
 
             for ab in clones:
-                # Numerically safe probability gate
-                # arg = -2 * (affinity / max_aff); clip to avoid overflow
+                # numerically safe gate probability
                 arg = -2.0 * (ab.affinity / max_aff)
-                # clamp exponent to ~double-precision safe region
                 if arg > 700.0:
                     p = 1.0
                 elif arg < -700.0:
                     p = 0.0
                 else:
                     p = math.exp(arg)
-                # ensure it's a valid probability in [0,1]
                 p = float(min(1.0, max(0.0, p)))
-
                 use_uniform = (np.random.rand() < p)
 
                 if use_uniform:
                     step = np.random.uniform(-self.a_vec, self.a_vec)
                     cand = ab.x + step
                 else:
-                    # directed step toward elite center (IICO flavor)
                     diff = F1 - ab.x
                     norm = np.linalg.norm(diff) + 1e-12
                     A_vec = 20.0 * alpha_iter * (diff / norm)
@@ -222,7 +254,6 @@ class HybridCSA:
                 self._clip(cand)
                 cand_fit = self._affinity(cand)
 
-                # alternate QOBL vs QRBL depending on stagnation
                 if stagnation <= self.max_stagnation:
                     qop = self._qobl(cand)
                     self._clip(qop)
@@ -270,11 +301,15 @@ class HybridCSA:
                 "beta": self.beta,
                 "gamma": self.gamma,
                 "max_stagnation": self.max_stagnation,
+                "use_qmc": self.use_qmc,
+                "qmc_engine": self.qmc_engine,
             },
         }
 
 
-# --- Test functions ---
+# ===============================
+# Test functions
+# ===============================
 def sphere(x: np.ndarray) -> float:
     return float(np.sum(x * x))
 
@@ -282,12 +317,12 @@ def rastrigin(x: np.ndarray) -> float:
     A = 10.0
     return float(A * x.size + np.sum(x * x - A * np.cos(2.0 * math.pi * x)))
 
-# --- Run experiment 100 times and collect results ---
-def run_experiments(func, func_name, runs=100):
-    dim = 100
-    #dim = 2
-    #dim = 20
-    bounds = [(-5.12, 5.12)] * dim  # same bounds for both functions
+
+# ===============================
+# Experiment runner (100 runs)
+# ===============================
+def run_experiments(func, func_name, runs=100, dim=30):
+    bounds = [(-5.12, 5.12)] * dim
     results = []
 
     for run in range(runs):
@@ -300,29 +335,30 @@ def run_experiments(func, func_name, runs=100):
             a_frac=0.15,
             c_threshold=3.0,
             max_gens=500,
-            seed=run,  # different seed each run
+            seed=run,
             sigma_initial=0.5,
             sigma_final=0.1,
             exponent=2.0,
             beta=100.0,
             gamma=1e-19,
             max_stagnation=3,
+            use_qmc=True,
+            qmc_engine="sobol",
         )
-
-        x_best, f_best, _ = algo.minimize()
+        _, f_best, _ = algo.minimize()
         results.append(f_best)
 
-    avg_optimal = np.mean(results)
-    max_optimal = np.max(results)
-    min_optimal = np.min(results)
+    results = np.asarray(results, dtype=float)
+    print(f"\nResults for {func_name}")
+    print(f"Average Optimal Solution: {results.mean()}")
+    print(f"Maximum Optimal Solution: {results.max()}")
+    print(f"Minimum Optimal Solution: {results.min()}")
 
-    print(f"\nResults for {func_name}:")
-    print(f"Average Optimal Solution: {avg_optimal}")
-    print(f"Maximum Optimal Solution: {max_optimal}")
-    print(f"Minimum Optimal Solution: {min_optimal}")
 
-# --- Run for Sphere and Rastrigin ---
+# ===============================
+# Main
+# ===============================
 if __name__ == "__main__":
-    run_experiments(sphere, "Sphere Function", runs=100)
-
-    run_experiments(rastrigin, "Rastrigin Function", runs=100)
+    # Requires: pip install scipy
+    run_experiments(sphere, "Sphere Function", runs=100, dim=30)
+    run_experiments(rastrigin, "Rastrigin Function", runs=100, dim=30)
