@@ -75,3 +75,43 @@ IICO
 - under performs sa fixed dimension in terms of acceleration convergance
 - doesnt do well in multimodal cases in terms of scalability
 - doesnt do well in CEC function "deceptive, rotated, and constrained nature" - characteristics of CEC functions accroding ni chatgpt; leading to instability and poor generalization.
+
+### Why the Original Mechanism Fails
+
+#### 1. **Underperforms in Fixed Dimension (Convergence Acceleration)**
+
+- **Crowding deletion is too conservative** — it doesn’t aggressively remove redundant solutions.
+    
+- **Lacks structural pruning** — so convergence slows down due to lingering low-quality clones.
+    
+- **Synaptic pruning** accelerates convergence by trimming weak connections early.
+    
+
+#### 2. **Poor Scalability in Multimodal Landscapes**
+
+- **Crowding is local** — it doesn’t detect global overlap or niche collapse.
+    
+- **Multimodal problems need niche preservation**, which crowding fails to enforce.
+    
+- **Synaptic pruning** maintains niche diversity by pruning across the entire population.
+    
+
+#### 3. **Fails on CEC Functions (Deceptive, Rotated, Constrained)**
+
+- **Deceptive**: Crowding can’t distinguish between deceptive local optima and true global optima.
+    
+- **Rotated**: Crowding is sensitive to coordinate systems; rotated functions distort similarity metrics.
+    
+- **Constrained**: Crowding doesn’t handle feasibility boundaries well — it may delete feasible but diverse solutions.
+    
+- **Synaptic pruning** is more robust — it evaluates structural relevance rather than raw proximity.
+    
+
+###  Summary Table
+
+| Issue Area                  | Original IICO (Crowding)                      | Synaptic Pruning (SP)                      |
+| --------------------------- | --------------------------------------------- | ------------------------------------------ |
+| **Convergence Speed**       | Sluggish due to conservative deletion         | Faster via proactive pruning               |
+| **Multimodal Scalability**  | Poor niche preservation                       | Strong diversity control across niches     |
+| **CEC Function Robustness** | Sensitive to deception, rotation, constraints | Structural pruning improves generalization |
+| **Mechanism Type**          | Local, reactive                               | Global, structural                         |
