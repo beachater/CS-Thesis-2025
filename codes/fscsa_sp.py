@@ -1,3 +1,6 @@
+#-----------------
+# Forgetting Based Clonal Selection Algorithm
+#-----------------------------
 import numpy as np
 import random
 from dataclasses import dataclass
@@ -18,15 +21,15 @@ class Antibody:
 # --------------------------
 # FSCSA main class
 # --------------------------
-class FSCSA:
+class FSCSASP:
     """Forgetful Clonal Selection Algorithm (practical Python version).
     Implements Yang et al. (2020) flow:
     selection -> cloning -> variation -> replacement -> forgetting (Rac1 activity).
     """
 
     def __init__(self, func: Callable[[np.ndarray], Tuple[float,float,float]],
-                 dim: int, N: int=50, n_select: int=10, n_clones: int=5,
-                 m: float=2.0, c: float=3.0, max_iters: int=1000, seed: int=None):
+                dim: int, N: int=50, n_select: int=10, n_clones: int=5,
+                m: float=2.0, c: float=3.0, max_iters: int=1000, seed: int=None):
         # Benchmark function to minimize
         self.func = func
         # Problem dimensionality
@@ -108,7 +111,7 @@ class FSCSA:
             for _ in range(k):
                 # Copy antibody (clones start identical to parent)
                 clones.append(Antibody(x=ab.x.copy(), fitness=ab.fitness,
-                                       affinity=ab.affinity, T=ab.T, S=ab.S))
+                                    affinity=ab.affinity, T=ab.T, S=ab.S))
         return clones
 
     # --------------------------
@@ -140,7 +143,7 @@ class FSCSA:
         union = pop + offspring
         union.sort(key=lambda a: a.fitness)
         new_pop = [Antibody(x=a.x, fitness=a.fitness, affinity=a.affinity, T=a.T, S=a.S)
-                   for a in union[:self.N]]
+                for a in union[:self.N]]
         return new_pop
 
     # --------------------------
@@ -159,6 +162,22 @@ class FSCSA:
                 fit = self._fitness(x)
                 aff = self._affinity(fit)
                 pop[i] = Antibody(x=x, fitness=fit, affinity=aff, T=0, S=0)
+
+        # --------------------------
+    # Synaptic Pruning: Low-Novelty Filter
+    # --------------------------
+    def _prune_low_novelty(self, pop: List[Antibody], scale: float = 0.01) -> None:
+        threshold = scale * np.linalg.norm(self.ub - self.lb)
+        positions = np.array([ab.x for ab in pop])
+        for i, ab in enumerate(pop):
+            diffs = positions - ab.x
+            dists = np.linalg.norm(diffs, axis=1)
+            avg_dist = (np.sum(dists) - dists[i]) / (len(pop) - 1)
+            if avg_dist < threshold:
+                x_new = np.random.uniform(self.lb, self.ub, self.dim)
+                fit = self._fitness(x_new)
+                aff = self._affinity(fit)
+                pop[i] = Antibody(x=x_new, fitness=fit, affinity=aff, T=0, S=0)
 
 
 
@@ -189,6 +208,16 @@ class FSCSA:
             # Forgetting (biological forgetting mechanism)
             self._forgetting(pop)
                         
+                
+            # Synaptic pruning: remove low-novelty antibodies every 50 iterations
+            if it % 50 == 0:
+                before = np.array([ab.x for ab in pop])
+                self._prune_low_novelty(pop)
+                after = np.array([ab.x for ab in pop])
+                delta = np.mean(np.linalg.norm(before - after, axis=1))
+                print(f"Iteration {it}: Avg position change after pruning = {delta:.4f}")
+
+
             # Track global best solution
             current_best = min(pop, key=lambda a: a.fitness)
             if current_best.fitness < best.fitness:
