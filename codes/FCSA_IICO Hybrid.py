@@ -284,7 +284,9 @@ def rastrigin(x: np.ndarray) -> float:
 
 # --- Run experiment 100 times and collect results ---
 def run_experiments(func, func_name, runs=100):
-    dim = 30
+    dim = 100
+    #dim = 2
+    #dim = 20
     bounds = [(-5.12, 5.12)] * dim  # same bounds for both functions
     results = []
 
@@ -322,4 +324,5 @@ def run_experiments(func, func_name, runs=100):
 # --- Run for Sphere and Rastrigin ---
 if __name__ == "__main__":
     run_experiments(sphere, "Sphere Function", runs=100)
+
     run_experiments(rastrigin, "Rastrigin Function", runs=100)
