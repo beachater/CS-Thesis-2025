@@ -287,9 +287,9 @@ def omit_extra(costs, X, delta_X):
 def iico_test():
     fun = get_function_by_name('Sphere')
 
-    dim = 50
+    dim = 2
     n = 30
-    max_FEs = dim * 2000
+    max_FEs = 350000
 
     best_fitness_list = iico(fun, max_FEs, n, dim)[0]
     print("best fitness value: ", best_fitness_list[-1])

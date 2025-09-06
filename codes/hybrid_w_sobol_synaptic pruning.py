@@ -50,7 +50,7 @@ class HybridCSA:
         exponent: float = 2.0,
         beta: float = 100.0,
         gamma: float = 1e-19,
-        max_stagnation: int = 3,
+        maxStag: int = 3,
         use_qmc: bool = True,
         qmc_engine: str = "sobol",
         prune_scale: float = 0.01,        # <- NEW: novelty radius as fraction of domain norm
@@ -74,7 +74,7 @@ class HybridCSA:
         self.exponent = float(exponent)
         self.beta = float(beta)
         self.gamma = float(gamma)
-        self.max_stagnation = int(max_stagnation)
+        self.maxStag = int(maxStag)
 
         self.use_qmc = bool(use_qmc)
         self.qmc_engine = qmc_engine.lower().strip()
@@ -256,7 +256,7 @@ class HybridCSA:
 
             elites_for_center = max(
                 1,
-                int(round(self.n_select * (0.5 + 0.5 * max(0, self.max_stagnation - stagnation) / max(1, self.max_stagnation))))
+                int(round(self.n_select * (0.5 + 0.5 * max(0, self.maxStag - stagnation) / max(1, self.maxStag))))
             )
             F1 = self._elite_center(pop, elites_for_center)
 
@@ -302,7 +302,7 @@ class HybridCSA:
                 self._clip(cand)
                 cand_fit = self._affinity(cand)
 
-                if stagnation <= self.max_stagnation:
+                if stagnation <= self.maxStag:
                     qop = self._qobl(cand)
                     self._clip(qop)
                     qop_fit = self._affinity(qop)
@@ -376,7 +376,7 @@ def run_experiments(func, func_name, runs=100, dim=30):
             exponent=2.0,
             beta=100.0,
             gamma=1e-19,
-            max_stagnation=3,
+            maxStag=3,
             use_qmc=True,
             qmc_engine="sobol",
             prune_scale=0.01,          # adjust if you want more/less aggressive pruning

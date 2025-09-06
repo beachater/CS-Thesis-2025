@@ -41,7 +41,7 @@ class HybridCSA:
         exponent: float = 2.0,
         beta: float = 100.0,
         gamma: float = 1e-19,
-        max_stagnation: int = 3,
+        maxStag: int = 3,
         prune_scale: float = 0.01,
         prune_every: int = 5,
         max_prunes_per_gen: Optional[int] = None,
@@ -63,7 +63,7 @@ class HybridCSA:
         self.exponent = float(exponent)
         self.beta = float(beta)
         self.gamma = float(gamma)
-        self.max_stagnation = int(max_stagnation)
+        self.maxStag = int(maxStag)
 
         self.seed = seed
         self.verbose = verbose
@@ -218,7 +218,7 @@ class HybridCSA:
                 int(
                     round(
                         self.n_select
-                        * (0.5 + 0.5 * max(0, self.max_stagnation - stagnation) / max(1, self.max_stagnation))
+                        * (0.5 + 0.5 * max(0, self.maxStag - stagnation) / max(1, self.maxStag))
                     )
                 ),
             )
@@ -267,7 +267,7 @@ class HybridCSA:
                 self._clip(cand)
                 cand_fit = self._affinity(cand)
 
-                if stagnation <= self.max_stagnation:
+                if stagnation <= self.maxStag:
                     qop = self._qobl(cand)
                     self._clip(qop)
                     qop_fit = self._affinity(qop)
@@ -338,7 +338,7 @@ def run_experiments(func, func_name, runs=100, dim=30):
             exponent=2.0,
             beta=100.0,
             gamma=1e-19,
-            max_stagnation=3,
+            maxStag=3,
             prune_scale=0.01,
             prune_every=5,
             max_prunes_per_gen=None,
