@@ -22,7 +22,6 @@ class HybridCSA:
       2) Quasi-Opposition Based Learning (QOBL)
       3) Adaptive parameter schedule (IICO-style)
       4) Quasi-Reflection Based Learning (QRBL)
-      5) Synaptic Pruning (low-novelty filter) to re-seed crowded individuals
     """
 
     def __init__(
@@ -42,9 +41,6 @@ class HybridCSA:
         beta: float = 100.0,
         gamma: float = 1e-19,
         max_stagnation: int = 3,
-        prune_scale: float = 0.01,
-        prune_every: int = 5,
-        max_prunes_per_gen: Optional[int] = None,
         verbose: bool = True,
     ):
         self.func = func
@@ -67,13 +63,6 @@ class HybridCSA:
 
         self.seed = seed
         self.verbose = verbose
-
-        # Synaptic pruning params
-        self.prune_scale = float(prune_scale)
-        self.prune_every = int(prune_every)
-        self.max_prunes_per_gen = (
-            max_prunes_per_gen if (max_prunes_per_gen is None) else int(max_prunes_per_gen)
-        )
 
         if seed is not None:
             np.random.seed(seed)
@@ -168,35 +157,6 @@ class HybridCSA:
                 x = self._sample_uniform_point()
                 pop[i] = Antibody(x=x, affinity=self._affinity(x), T=0, S=0)
 
-    # ---------- Synaptic Pruning ----------
-    def _prune_low_novelty(
-        self,
-        pop: List[Antibody],
-        scale: Optional[float] = None,
-        max_prunes: Optional[int] = None,
-    ) -> None:
-        if scale is None:
-            scale = self.prune_scale
-        if scale <= 0.0 or len(pop) < 3:
-            return
-
-        threshold = float(scale) * np.linalg.norm(self.ub - self.lb)
-        X = np.stack([ab.x for ab in pop], axis=0)
-
-        diffs = X[:, None, :] - X[None, :, :]
-        dists = np.linalg.norm(diffs, axis=2)
-        np.fill_diagonal(dists, np.nan)
-        avg_dists = np.nanmean(dists, axis=1)
-
-        to_prune = np.where(avg_dists < threshold)[0].tolist()
-        if max_prunes is not None and len(to_prune) > max_prunes:
-            order = np.argsort(avg_dists[to_prune])
-            to_prune = [to_prune[i] for i in order[:max_prunes]]
-
-        for i in to_prune:
-            x_new = self._sample_uniform_point()
-            pop[i] = Antibody(x=x_new, affinity=self._affinity(x_new), T=0, S=0)
-
     # ---------- main loop ----------
     def minimize(self) -> Tuple[np.ndarray, float, Dict[str, Any]]:
         pop = self._population_init()
@@ -288,9 +248,6 @@ class HybridCSA:
 
             self._forget_in_place(pop)
 
-            if self.prune_scale > 0.0 and self.prune_every > 0 and (gen % self.prune_every == 0):
-                self._prune_low_novelty(pop, scale=self.prune_scale, max_prunes=self.max_prunes_per_gen)
-
             cur_best = max(pop, key=lambda ab: ab.affinity)
             cur_best_val = -cur_best.affinity
             self.history_best.append((cur_best_val, cur_best.x.copy()))
@@ -339,9 +296,6 @@ def run_experiments(func, func_name, runs=100, dim=30):
             beta=100.0,
             gamma=1e-19,
             max_stagnation=3,
-            prune_scale=0.01,
-            prune_every=5,
-            max_prunes_per_gen=None,
             verbose=(run == 0),
         )
         _, f_best, _ = algo.minimize()
