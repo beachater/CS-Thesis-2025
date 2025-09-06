@@ -8,6 +8,11 @@ import random
 import numpy as np
 
 
+# Benchmark functions are used to evaluate the fitness of candidate solutions (antibodies), 
+# which are sampled from within the function’s defined bounds. 
+# The fitness value reflects how close each solution is to the global optimum, guiding the algorithm’s 
+# search toward better solutions.
+
 def get_function_by_name(name):
     # Unimodal
     if name == 'Sphere': return Sphere
