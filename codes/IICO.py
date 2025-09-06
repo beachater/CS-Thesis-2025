@@ -14,7 +14,7 @@ import numpy as np
 from openpyxl import load_workbook
 
 
-from benchmark_function import get_function_by_name
+from benchmark import get_function_by_name
 
 
 def iico(fun, max_FEs, n, dim, max_stagnation=3):

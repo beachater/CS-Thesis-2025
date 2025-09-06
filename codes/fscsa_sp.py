@@ -35,7 +35,7 @@ class FCSASP:
         r: float = 2.0,
         a_frac: float = 0.15,
         c_threshold: float = 3.0,
-        max_gens: int = 500,
+        max_gens: int = 1000,
         max_evals: int = 350_000,
         seed: int | None = 42,
         # --- pruning extras (optional) ---
