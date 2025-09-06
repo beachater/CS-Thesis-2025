@@ -1,193 +1,242 @@
-#-----------------
-# Forgetting Based Clonal Selection Algorithm with Sobol Initialization
-#-----------------------------
-import numpy as np
+from __future__ import annotations
+
+import math
 import random
 from dataclasses import dataclass
-from typing import Callable, Tuple, List
-from scipy.stats import qmc   # <-- NEW: for Sobol sequences
+from typing import Callable, List, Tuple
+import numpy as np
 
-# --------------------------
-# Antibody representation
-# --------------------------
+# Optional Sobol support
+try:
+    from scipy.stats import qmc
+    _HAS_QMC = True
+except Exception:
+    _HAS_QMC = False
+
+
 @dataclass
 class Antibody:
-    x: np.ndarray        # position (candidate solution)
-    fitness: float       # objective value
-    affinity: float      # affinity = inverse of fitness
-    T: int = 0           # survival time (how long antibody has existed)
-    S: int = 0           # memory intensity (how many times selected for cloning)
+    x: np.ndarray
+    affinity: float          # higher is better (we maximize affinity = -f)
+    T: int = 0               # survival time
+    S: int = 0               # memory strength (times selected)
 
 
-# --------------------------
-# FSCSA main class
-# --------------------------
-class FSCSASPQMC:
-    """Forgetful Clonal Selection Algorithm (Sobol-based version).
+class FCSASPQMC:
+    """
+    FCSASPQMC: FCSA + Synaptic Pruning, with Sobol (QMC) sampling for init/reinit.
+
+    API matches FCSA/FCSASP:
+      func(x) -> float           objective to MINIMIZE
+      bounds: List[(lo, hi)]     per-dimension domain
+      N, n_select, n_clones, r, a_frac, c_threshold, max_gens, max_evals, seed
+      prune_every, prune_scale, protect_k, prune_knn
+
+    If 'prune_every=None', behavior is identical to FCSA (aside from Sobol init).
     """
 
-    def __init__(self, func: Callable[[np.ndarray], Tuple[float,float,float]],
-                 dim: int, N: int=50, n_select: int=10, n_clones: int=5,
-                 m: float=2.0, c: float=3.0, max_iters: int=1000, seed: int=None):
+    def __init__(
+        self,
+        func: Callable[[np.ndarray], float],
+        bounds: List[Tuple[float, float]],
+        N: int = 60,
+        n_select: int = 15,
+        n_clones: int = 5,
+        r: float = 2.0,
+        a_frac: float = 0.15,
+        c_threshold: float = 3.0,
+        max_gens: int = 500,
+        max_evals: int = 350_000,
+        seed: int | None = 42,
+        # pruning (optional)
+        prune_every: int | None = 50,
+        prune_scale: float = 0.01,
+        protect_k: int = 3,
+        prune_knn: int = 5,
+    ):
         self.func = func
-        self.dim = dim
-        self.N = N
-        self.n_select = n_select
-        self.n_clones = n_clones
-        self.m = m
-        self.c = c
-        self.max_iters = max_iters
+        self.bounds = np.array(bounds, dtype=float)
+        self.dim = len(bounds)
 
+        self.N = int(N)
+        self.n_select = max(1, min(int(n_select), self.N))
+        self.n_clones = max(1, int(n_clones))
+        self.r = float(r)
+        self.a_frac = float(a_frac)
+        self.c_threshold = float(c_threshold)
+        self.max_gens = int(max_gens)
+        self.max_evals = int(max_evals)
+
+        # pruning params
+        self.prune_every = prune_every
+        self.prune_scale = float(prune_scale)
+        self.protect_k = int(protect_k)
+        self.prune_knn = int(prune_knn)
+
+        # RNG
         if seed is not None:
             np.random.seed(seed)
             random.seed(seed)
 
-        f0, lb, ub = self.func(np.zeros(dim))
-        self.lb = lb
-        self.ub = ub
+        self.widths = self.bounds[:, 1] - self.bounds[:, 0]
+        self.a_vec = self.a_frac * self.widths  # per-dimension mutation span
+        self.history_best: list[tuple[float, np.ndarray]] = []
+        self.eval_count = 0
 
-        self.history = []
+        # Sobol sampler (scrambled) if available
+        self._use_qmc = _HAS_QMC
+        if self._use_qmc:
+            self._sobol = qmc.Sobol(d=self.dim, scramble=True, seed=seed)
 
-        # Sobol sampler (scrambled for variety)
-        self.sampler = qmc.Sobol(d=self.dim, scramble=True, seed=seed)
-        self.sobol_used = 0  # keep track of samples consumed
+    # ---------------- eval helpers (same as FCSA/FCSASP) ----------------
+    def _objective(self, x: np.ndarray) -> float:
+        self.eval_count += 1
+        return float(self.func(x))
 
-    # --------------------------
-    # Fitness evaluation
-    # --------------------------
-    def _fitness(self, x: np.ndarray) -> float:
-        y, _, _ = self.func(x)
-        return float(y)
+    def _affinity_of(self, x: np.ndarray) -> float:
+        # maximize opposite of objective (minimize f)
+        return -self._objective(x)
 
-    # --------------------------
-    # Affinity measure
-    # --------------------------
-    def _affinity(self, fitness: float) -> float:
-        return 1.0 / (1.0 + max(fitness, 0.0))
+    def _clip(self, x: np.ndarray) -> None:
+        np.clip(x, self.bounds[:, 0], self.bounds[:, 1], out=x)
 
-    # --------------------------
-    # Get next Sobol sample
-    # --------------------------
-    def _sobol_sample(self, n: int = 1) -> np.ndarray:
-        pts = self.sampler.random(n)
-        self.sobol_used += n
-        return qmc.scale(pts, self.lb, self.ub)
+    def _sample_uniform(self, n: int = 1) -> np.ndarray:
+        return self.bounds[:, 0] + np.random.rand(n, self.dim) * self.widths
 
-    # --------------------------
-    # Boundary handling
-    # --------------------------
-    def _clip(self, x):
-        return np.clip(x, self.lb, self.ub)
+    def _sample_qmc(self, n: int = 1) -> np.ndarray:
+        if not self._use_qmc:
+            return self._sample_uniform(n)
+        pts01 = self._sobol.random(n)  # in [0,1]^d
+        return self.bounds[:, 0] + pts01 * self.widths
 
-    # --------------------------
-    # Initialize antibody population (Sobol instead of uniform random)
-    # --------------------------
+    # ---------------- core steps (aligned with FCSA/FCSASP) ----------------
     def _init_population(self) -> List[Antibody]:
-        pop = []
-        sobol_points = self._sobol_sample(self.N)
-        for x in sobol_points:
-            fit = self._fitness(x)
-            aff = self._affinity(fit)
-            pop.append(Antibody(x=x, fitness=fit, affinity=aff, T=0, S=0))
+        pop: List[Antibody] = []
+        # Sobol init (falls back to uniform if SciPy not present)
+        init_pts = self._sample_qmc(self.N)
+        for i in range(self.N):
+            x = init_pts[i].copy()
+            pop.append(Antibody(x=x, affinity=self._affinity_of(x), T=0, S=0))
         return pop
 
-    # --------------------------
-    # Cloning process
-    # --------------------------
+    def _select_top(self, pop: List[Antibody]) -> List[Antibody]:
+        pop_sorted = sorted(pop, key=lambda ab: ab.affinity, reverse=True)
+        return pop_sorted[: self.n_select]
+
     def _clone(self, selected: List[Antibody]) -> List[Antibody]:
         if not selected:
             return []
-        max_aff = max(ab.affinity for ab in selected)
-        clones = []
+        # normalize affinities to [0,1] among selected for clone scaling
+        sel_affs = np.array([ab.affinity for ab in selected], dtype=float)
+        a_min = float(sel_affs.min())
+        a_max = float(sel_affs.max())
+        denom = max(a_max - a_min, 1e-12)
+        clones: List[Antibody] = []
         for ab in selected:
             ab.S += 1
-            ratio = ab.affinity / (max_aff + 1e-12)
-            k = max(1, int(round(self.n_clones * ratio)))
+            a_norm = (ab.affinity - a_min) / denom     # 0..1
+            k = max(1, int(round(1 + a_norm * (self.n_clones - 1))))
             for _ in range(k):
-                clones.append(Antibody(x=ab.x.copy(), fitness=ab.fitness,
-                                       affinity=ab.affinity, T=ab.T, S=ab.S))
+                clones.append(Antibody(x=ab.x.copy(), affinity=ab.affinity, T=ab.T, S=ab.S))
         return clones
 
-    # --------------------------
-    # Mutation
-    # --------------------------
-    def _mutate(self, clones: List[Antibody]) -> None:
-        scale_base = (self.ub - self.lb) * 0.1
+    def _mutate_variation(self, clones: List[Antibody]) -> None:
+        if not clones:
+            return
+        # normalized goodness across clones
+        affs = np.array([ab.affinity for ab in clones], dtype=float)
+        a_min = float(affs.min())
+        a_max = float(affs.max())
+        denom = max(a_max - a_min, 1e-12)
+
         for ab in clones:
-            step = scale_base * ((1.0 - ab.affinity) ** self.m)
-            if step < 1e-12:
-                step = 1e-12
-            noise = np.random.normal(loc=0.0, scale=step, size=self.dim)
-            x_new = self._clip(ab.x + noise)
-            fit = self._fitness(x_new)
-            aff = self._affinity(fit)
-            ab.x, ab.fitness, ab.affinity = x_new, fit, aff
+            a_norm = (ab.affinity - a_min) / denom     # 0 (worst) .. 1 (best)
+            p = math.exp(-self.r * a_norm)             # (e^-r, 1]
+            mask = np.random.rand(self.dim) < p
+            if np.any(mask):
+                step = np.random.uniform(-self.a_vec, self.a_vec)
+                ab.x = ab.x + mask.astype(float) * step
+                self._clip(ab.x)
+                ab.affinity = self._affinity_of(ab.x)
+                # paper behavior on successful variation
+                ab.T = 0
+                ab.S = 1
 
-    # --------------------------
-    # Replacement
-    # --------------------------
-    def _replace(self, pop: List[Antibody], offspring: List[Antibody]) -> List[Antibody]:
-        for ab in pop:
-            ab.T += 1
-        union = pop + offspring
-        union.sort(key=lambda a: a.fitness)
-        return [Antibody(x=a.x, fitness=a.fitness, affinity=a.affinity, T=a.T, S=a.S)
-                for a in union[:self.N]]
+    def _downselect(self, parents: List[Antibody], clones: List[Antibody]) -> List[Antibody]:
+        pool = parents + clones
+        pool.sort(key=lambda ab: ab.affinity, reverse=True)
+        return pool[: self.N]
 
-    # --------------------------
-    # Forgetting (Sobol reinit instead of random)
-    # --------------------------
-    def _forgetting(self, pop: List[Antibody]) -> None:
+    def _forget_in_place(self, pop: List[Antibody]) -> None:
         for i, ab in enumerate(pop):
-            if ab.S == 0:
-                activity = float('inf') if ab.T > 0 else 0.0
+            if ab.S <= 0:
+                # gentle on brand-new ones
+                activity = float("inf") if ab.T > 2 else 0.0
             else:
-                activity = ab.T / ab.S
-            if activity > self.c:
-                x = self._sobol_sample(1)[0]
-                fit = self._fitness(x)
-                aff = self._affinity(fit)
-                pop[i] = Antibody(x=x, fitness=fit, affinity=aff, T=0, S=0)
+                activity = ab.T / float(ab.S)
+            if activity > self.c_threshold:
+                # QMC reinitialization for forgotten individuals
+                x = self._sample_qmc(1)[0]
+                pop[i] = Antibody(x=x, affinity=self._affinity_of(x), T=0, S=0)
 
-    # --------------------------
-    # Synaptic Pruning
-    # --------------------------
-    def _prune_low_novelty(self, pop: List[Antibody], scale: float = 0.01) -> None:
-        threshold = scale * np.linalg.norm(self.ub - self.lb)
-        positions = np.array([ab.x for ab in pop])
-        for i, ab in enumerate(pop):
-            diffs = positions - ab.x
-            dists = np.linalg.norm(diffs, axis=1)
-            avg_dist = (np.sum(dists) - dists[i]) / (len(pop) - 1)
-            if avg_dist < threshold:
-                x_new = self._sobol_sample(1)[0]
-                fit = self._fitness(x_new)
-                aff = self._affinity(fit)
-                pop[i] = Antibody(x=x_new, fitness=fit, affinity=aff, T=0, S=0)
+    # ---------------- synaptic pruning (only extra step) ----------------
+    def _prune_low_novelty(self, pop: List[Antibody]) -> None:
+        # Protect top-k by affinity
+        pop.sort(key=lambda ab: ab.affinity, reverse=True)
+        elites = pop[: self.protect_k]
+        rest = pop[self.protect_k:]
+        if not rest:
+            return
 
-    # --------------------------
-    # Main optimization loop
-    # --------------------------
+        positions = np.array([ab.x for ab in rest])
+        dom_norm = np.linalg.norm(self.widths)
+        threshold = self.prune_scale * dom_norm
+
+        def knn_avg(i: int, k: int) -> float:
+            d = np.linalg.norm(positions - positions[i], axis=1)
+            d.sort()
+            k = min(k + 1, len(d))  # include self at d[0]=0
+            return d[1:k].mean() if k > 1 else 0.0
+
+        for i, ab in enumerate(rest):
+            if knn_avg(i, self.prune_knn) < threshold:
+                # QMC replacement for low-novelty antibodies
+                x = self._sample_qmc(1)[0]
+                rest[i] = Antibody(x=x, affinity=self._affinity_of(x), T=0, S=0)
+
+        # reassemble
+        pop[: self.protect_k] = elites
+        pop[self.protect_k:] = rest
+
+    # ---------------- main loop (same as FCSA/FCSASP + optional pruning) ----------------
     def optimize(self):
         pop = self._init_population()
-        best = min(pop, key=lambda a: a.fitness)
-        self.history = [best.fitness]
 
-        for it in range(1, self.max_iters + 1):
-            pop.sort(key=lambda a: a.fitness)
-            selected = pop[:self.n_select]
+        for gen in range(self.max_gens):
+            if self.eval_count >= self.max_evals:
+                break
 
+            for ab in pop:
+                ab.T += 1
+
+            selected = self._select_top(pop)
             clones = self._clone(selected)
-            self._mutate(clones)
-            pop = self._replace(pop, clones)
-            self._forgetting(pop)
-            self._prune_low_novelty(pop)
+            self._mutate_variation(clones)
+            pop = self._downselect(pop, clones)
+            self._forget_in_place(pop)
 
-            current_best = min(pop, key=lambda a: a.fitness)
-            if current_best.fitness < best.fitness:
-                best = Antibody(x=current_best.x.copy(), fitness=current_best.fitness,
-                                affinity=current_best.affinity, T=current_best.T, S=current_best.S)
+            if self.prune_every and (gen + 1) % self.prune_every == 0:
+                self._prune_low_novelty(pop)
 
-            self.history.append(best.fitness)
+            best = max(pop, key=lambda ab: ab.affinity)
+            self.history_best.append((-best.affinity, best.x.copy()))
 
-        return best.x, best.fitness, self.history
+            if self.eval_count >= self.max_evals:
+                break
+
+        best = max(pop, key=lambda ab: ab.affinity)
+        return best.x.copy(), -best.affinity, {
+            "generations_run": len(self.history_best),
+            "evals_used": self.eval_count,
+            "history": self.history_best,
+        }
