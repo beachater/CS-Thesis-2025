@@ -68,7 +68,7 @@ algorithms = [
     ("FCSA+SP+QMC", run_fcsa_sp_qmc),
     ("IICO", run_iico),
     ("HybridCSA-Pruning", run_hybrid_pruning),
-    ("HybridCSA-Sobol", run_hybrid_pruning_sobol),
+    ("HybridCSA-Pruning-Sobol", run_hybrid_pruning_sobol),
 ]
 
 

@@ -1,0 +1,67 @@
+FCSA Benchmark Results (runs per algorithm: 100)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  FCSA: mean=11.2882, std=3.55271e-15
+  FCSA+SP: mean=11.3263, std=7.10543e-15
+  FCSA+SP+QMC: mean=10.9511, std=3.55271e-15
+  IICO: mean=4.44089e-16, std=0
+  HybridCSA-Pruning: mean=9.42666, std=1.77636e-15
+  HybridCSA-Pruning-Sobol: mean=9.21541, std=1.77636e-15
+
+Benchmark: Griewank
+  FCSA: mean=84.792, std=0
+  FCSA+SP: mean=82.1607, std=0
+  FCSA+SP+QMC: mean=75.4161, std=1.42109e-14
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=42.9923, std=2.13163e-14
+  HybridCSA-Pruning-Sobol: mean=53.1708, std=1.42109e-14
+
+Benchmark: Rastrigin
+  FCSA: mean=722.469, std=3.41061e-13
+  FCSA+SP: mean=823.022, std=3.41061e-13
+  FCSA+SP+QMC: mean=801.876, std=2.27374e-13
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=530.94, std=1.13687e-13
+  HybridCSA-Pruning-Sobol: mean=584.193, std=0
+
+Benchmark: Shubert
+  FCSA: mean=19.491, std=3.55271e-15
+  FCSA+SP: mean=21.7536, std=3.55271e-15
+  FCSA+SP+QMC: mean=21.9831, std=3.55271e-15
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=34.8748, std=0
+  HybridCSA-Pruning-Sobol: mean=34.4252, std=0
+
+Benchmark: Eggholder
+  FCSA: mean=0.00994979, std=1.73472e-18
+  FCSA+SP: mean=0.0136936, std=1.73472e-18
+  FCSA+SP+QMC: mean=0.000363444, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=4.74439e-05, std=6.77626e-21
+  HybridCSA-Pruning-Sobol: mean=6.42437e-05, std=2.71051e-20
+
+Benchmark: Holdertable
+  FCSA: mean=-19.1961, std=0
+  FCSA+SP: mean=-19.2059, std=0
+  FCSA+SP+QMC: mean=-19.1917, std=0
+  IICO: mean=-19.2085, std=2.56569e-06
+  HybridCSA-Pruning: mean=-19.2085, std=3.55271e-15
+  HybridCSA-Pruning-Sobol: mean=-19.1854, std=7.10543e-15
+
+Benchmark: Schaffer 01
+  FCSA: mean=0, std=0
+  FCSA+SP: mean=0, std=0
+  FCSA+SP+QMC: mean=0, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=0, std=0
+  HybridCSA-Pruning-Sobol: mean=0, std=0
+
+Benchmark: Schaffer 02
+  FCSA: mean=0, std=0
+  FCSA+SP: mean=0, std=0
+  FCSA+SP+QMC: mean=0, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=0, std=0
+  HybridCSA-Pruning-Sobol: mean=0, std=0
+
