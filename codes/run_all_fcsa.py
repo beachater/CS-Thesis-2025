@@ -104,6 +104,9 @@ algorithms = [
     # ("IICO", run_iico),
     # ("HybridCSA-Pruning", run_hybrid_pruning),
     # ("HybridCSA-Sobol", run_hybrid_pruning_sobol),
+    # fcsa_levy
+    # hybrid_csa_chaos_sobol_δx_memory_adaptive_pruning
+    # levy_vs_iico
 ]
 
 
