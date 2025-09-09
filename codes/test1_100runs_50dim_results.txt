@@ -1,0 +1,67 @@
+FCSA Benchmark Results (runs per algorithm: 100)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  FCSA: mean=7.0814, std=1.77636e-15
+  FCSA+SP: mean=7.01485, std=2.66454e-15
+  FCSA+SP+QMC: mean=7.32033, std=8.88178e-16
+  IICO: mean=4.44089e-16, std=0
+  HybridCSA-Pruning: mean=7.82103, std=8.88178e-16
+  HybridCSA-Sobol: mean=8.30325, std=0
+
+Benchmark: Griewank
+  FCSA: mean=9.29892, std=0
+  FCSA+SP: mean=7.51848, std=2.66454e-15
+  FCSA+SP+QMC: mean=9.32195, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=13.9092, std=3.55271e-15
+  HybridCSA-Sobol: mean=14.746, std=3.55271e-15
+
+Benchmark: Rastrigin
+  FCSA: mean=167.931, std=2.84217e-14
+  FCSA+SP: mean=198.4, std=2.84217e-14
+  FCSA+SP+QMC: mean=200.367, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=216.396, std=0
+  HybridCSA-Sobol: mean=252.553, std=0
+
+Benchmark: Shubert
+  FCSA: mean=4.93828, std=0
+  FCSA+SP: mean=7.2002, std=2.66454e-15
+  FCSA+SP+QMC: mean=4.83682, std=8.88178e-16
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=14.2523, std=5.32907e-15
+  HybridCSA-Sobol: mean=13.7178, std=1.77636e-15
+
+Benchmark: Eggholder
+  FCSA: mean=0.00192549, std=6.50521e-19
+  FCSA+SP: mean=0.0019447, std=4.33681e-19
+  FCSA+SP+QMC: mean=0.00399051, std=1.73472e-18
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=3.48615e-05, std=1.35525e-20
+  HybridCSA-Sobol: mean=4.21282e-05, std=6.77626e-21
+
+Benchmark: Holdertable
+  FCSA: mean=-19.205, std=3.55271e-15
+  FCSA+SP: mean=-19.2046, std=0
+  FCSA+SP+QMC: mean=-19.2068, std=0
+  IICO: mean=-19.2084, std=0.000692227
+  HybridCSA-Pruning: mean=-19.2085, std=7.10543e-15
+  HybridCSA-Sobol: mean=-19.2085, std=0
+
+Benchmark: Schaffer 01
+  FCSA: mean=0, std=0
+  FCSA+SP: mean=0, std=0
+  FCSA+SP+QMC: mean=0, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=0, std=0
+  HybridCSA-Sobol: mean=0, std=0
+
+Benchmark: Schaffer 02
+  FCSA: mean=0, std=0
+  FCSA+SP: mean=0, std=0
+  FCSA+SP+QMC: mean=0, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=0, std=0
+  HybridCSA-Sobol: mean=0, std=0
+
