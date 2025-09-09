@@ -9,6 +9,11 @@ from fscsa_sp_qmc import FCSASPQMC
 from IICO import iico as IICO_func
 from hybrid_pruning import HybridCSA as HybridCSA_pruning
 from hybrid_w_sobol_synaptic_pruning import HybridCSA as HybridCSA_sobol
+from hybrid_pruning_adaptive import HybridCSA_adaptive
+from hybrid_pruning_de_version import HybridCSA_pruning_de_version
+from hybrid_pruning_de_version_adaptive import HybridCSA_pruning_de_version_adaptive
+from FCSA_IICO_Hybrid_original import HybridCSAOriginal
+from hybrid_original_de import HybridCSAOriginal_de
 
 # List of benchmark function names and their canonical names in benchmark.py
 benchmarks = [
@@ -38,6 +43,26 @@ def run_fcsa_sp_qmc(obj, bounds):
     x_best, f_best, info = opt.optimize()
     return f_best
 
+def run_hybrid_pruning_adaptive(obj, bounds):
+    opt = HybridCSA_adaptive(obj, bounds)
+    x_best, f_best, info = opt.minimize()
+    return f_best
+
+def run_hybrid_pruning_de_version(obj, bounds):
+    opt = HybridCSA_pruning_de_version(obj, bounds)
+    x_best, f_best, info = opt.minimize()
+    return f_best
+
+def run_hybrid_pruning_de_version_adaptive(obj, bounds):
+    opt = HybridCSA_pruning_de_version_adaptive(obj, bounds)
+    x_best, f_best, info = opt.minimize()
+    return f_best
+
+def run_hybrid_original_de(obj, bounds):
+    opt = HybridCSAOriginal_de(obj, bounds)
+    x_best, f_best, info = opt.minimize()
+    return f_best
+
 def run_iico(obj, bounds, dim, max_evals, pop_size, bench_func=None):
     # IICO expects fun (returns value, lb, ub), max_FEs, n, dim
     # Use bench_func for bounds, obj for fitness
@@ -62,13 +87,23 @@ def run_hybrid_pruning_sobol(obj, bounds):
     x_best, f_best, info = opt.minimize()
     return f_best
 
+def run_hybrid_original(obj, bounds):
+    opt = HybridCSAOriginal(obj, bounds)
+    x_best, f_best, info = opt.minimize()
+    return f_best
+
 algorithms = [
     ("FCSA", run_fcsa),
-    ("FCSA+SP", run_fcsa_sp),
-    ("FCSA+SP+QMC", run_fcsa_sp_qmc),
-    ("IICO", run_iico),
-    ("HybridCSA-Pruning", run_hybrid_pruning),
-    ("HybridCSA-Sobol", run_hybrid_pruning_sobol),
+    ("Hybrid Original", run_hybrid_original),
+    ("Hybrid Original + DE", run_hybrid_original_de),
+    ("Adaptive Pruning", run_hybrid_pruning_adaptive),
+    ("Hybrid Pruning+DE", run_hybrid_pruning_de_version),
+    ("Adaptive Pruning+DE", run_hybrid_pruning_de_version_adaptive),
+    # ("FCSA+SP", run_fcsa_sp),
+    # ("FCSA+SP+QMC", run_fcsa_sp_qmc),
+    # ("IICO", run_iico),
+    # ("HybridCSA-Pruning", run_hybrid_pruning),
+    # ("HybridCSA-Sobol", run_hybrid_pruning_sobol),
 ]
 
 
