@@ -2,16 +2,38 @@ Test 2 - FCSA Benchmark Results (100 runs per algorithm)
 
 NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
 Benchmark: Ackley
+  FCSA: mean=0.145791, std=0.0170369
+  FCSA-Levy: mean=0.0221988, std=0.0101647
+  Hybrid Original: mean=0.0148273, std=0.00334691
+  Hybrid Original + DE: mean=4.44089e-16, std=0
+  Adaptive Pruning: mean=10.1455, std=2.10136
+  Hybrid Pruning+DE: mean=2.59734, std=0.0123636
+  Adaptive Pruning+DE: mean=5.93728, std=4.2883
+  FCSA+SP: mean=0.237441, std=0.12201
+  FCSA+SP+QMC: mean=0.230827, std=0.0151547
   IICO: mean=4.44089e-16, std=0
-  HybridCSA-Pruning: mean=0.014574, std=0.00309363
+  HybridCSA-Pruning: mean=0.0382748, std=0.00912317
+  HybridCSA-Sobol: mean=0.0201616, std=0.00732726
+  HybridCSA++ (Memory Adaptive): mean=7.69456e-10, std=6.42988e-11
 
 Benchmark: Griewank
+  FCSA: mean=0.0884737, std=0.0191783
+  FCSA-Levy: mean=0.015047, std=0.00752857
+  Hybrid Original: mean=0.000554078, std=0.000514372
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=2.78011, std=1.43136
+  Hybrid Pruning+DE: mean=0.010244, std=0.0101346
+  Adaptive Pruning+DE: mean=3.38189, std=3.23794
+  FCSA+SP: mean=0.0437913, std=0.0318986
+  FCSA+SP+QMC: mean=0.0340674, std=0.000248082
   IICO: mean=0, std=0
-  HybridCSA-Pruning: mean=0.00448054, std=0.00444083
+  HybridCSA-Pruning: mean=0.000554078, std=0.000514372
+  HybridCSA-Sobol: mean=0.00129881, std=0.00036304
+  HybridCSA++ (Memory Adaptive): mean=0.00369802, std=0.00369802
 
 Benchmark: Rastrigin
-  IICO: mean=0, std=0
-  HybridCSA-Pruning: mean=0.000558124, std=0.000109593
-
-Benchmark: Shubert
-  IICO: mean=0, std=0
+  FCSA: mean=0.0154012, std=0.009113
+  FCSA-Levy: mean=7.53451e-06, std=7.53393e-06
+  Hybrid Original: mean=0.0001773, std=6.26423e-05
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=0.00011339, std=6.31153e-05

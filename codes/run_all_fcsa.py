@@ -142,19 +142,19 @@ def run_hybrid_original(obj, bounds, seed=None):
         return np.array([f_best])
 
 algorithms = [
-    # ("FCSA", run_fcsa),
-    # ("FCSA-Levy", run_fcsa_levy),
-    # ("Hybrid Original", run_hybrid_original),
-    # ("Hybrid Original + DE", run_hybrid_original_de),
-    # ("Adaptive Pruning", run_hybrid_pruning_adaptive),
-    # ("Hybrid Pruning+DE", run_hybrid_pruning_de_version),
-    # ("Adaptive Pruning+DE", run_hybrid_pruning_de_version_adaptive),
-    # ("FCSA+SP", run_fcsa_sp),
-    # ("FCSA+SP+QMC", run_fcsa_sp_qmc),
+    ("FCSA", run_fcsa),
+    ("FCSA-Levy", run_fcsa_levy),
+    ("Hybrid Original", run_hybrid_original),
+    ("Hybrid Original + DE", run_hybrid_original_de),
+    ("Adaptive Pruning", run_hybrid_pruning_adaptive),
+    ("Hybrid Pruning+DE", run_hybrid_pruning_de_version),
+    ("Adaptive Pruning+DE", run_hybrid_pruning_de_version_adaptive),
+    ("FCSA+SP", run_fcsa_sp),
+    ("FCSA+SP+QMC", run_fcsa_sp_qmc),
     ("IICO", run_iico),
     ("HybridCSA-Pruning", run_hybrid_pruning),
-    # ("HybridCSA-Sobol", run_hybrid_pruning_sobol),
-    # ("HybridCSA++ (Memory Adaptive)", run_hybrid_memory_adaptive),
+    ("HybridCSA-Sobol", run_hybrid_pruning_sobol),
+    ("HybridCSA++ (Memory Adaptive)", run_hybrid_memory_adaptive),
 ]
 
 
