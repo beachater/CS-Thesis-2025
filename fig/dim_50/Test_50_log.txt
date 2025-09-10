@@ -1,0 +1,17 @@
+Test 50 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  IICO: mean=18.4937, std=0.177953
+  HybridCSA-Pruning: mean=7.79191, std=0.358221
+
+Benchmark: Griewank
+  IICO: mean=164.311, std=12.6449
+  HybridCSA-Pruning: mean=16.7485, std=0.789977
+
+Benchmark: Rastrigin
+  IICO: mean=548.194, std=1.92179
+  HybridCSA-Pruning: mean=252.606, std=3.70687
+
+Benchmark: Shubert
+  IICO: mean=18.4288, std=0.673345

@@ -17,7 +17,12 @@ from openpyxl import load_workbook
 from benchmark import get_function_by_name
 
 
-def iico(fun, max_FEs, n, dim, max_stagnation=3):
+def iico(fun, max_FEs, n, dim, max_stagnation=3, seed=None):
+    if seed is not None:
+        import random
+        import numpy as np
+        random.seed(seed)
+        np.random.seed(seed)
     _, lb, ub = fun([random.random() for _ in range(dim)])
 
     pop = [[0. for _ in range(dim)] for _ in range(n)]

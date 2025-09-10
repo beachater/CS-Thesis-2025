@@ -98,7 +98,7 @@ class HybridCSAPlus:
         N: int = 60,
         n_select: int = 15,
         n_clones: int = 5,
-        max_gens: int = 500,
+        max_gens: int = 1000,
         seed: Optional[int] = 42,
         # mutation / schedule
         sigma_initial: float = 0.5,
