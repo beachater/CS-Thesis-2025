@@ -189,6 +189,7 @@ class HybridCSAOriginal_de:
 
     def minimize(self) -> Tuple[np.ndarray, float, Dict[str, Any]]:
         pop = self._population_init()
+        history = []  # best fitness per generation
 
         best = max(pop, key=lambda ab: ab.affinity)
         best_val = -best.affinity
@@ -276,6 +277,7 @@ class HybridCSAOriginal_de:
             cur_best = max(pop, key=lambda ab: ab.affinity)
             cur_best_val = -cur_best.affinity
             self.history_best.append((cur_best_val, cur_best.x.copy()))
+            history.append(cur_best_val)
 
             if cur_best_val + 1e-12 < best_val:
                 best_val = cur_best_val
@@ -286,7 +288,9 @@ class HybridCSAOriginal_de:
 
         return best.x.copy(), best_val, {
             "generations": self.max_gens,
-            "history": self.history_best,
+            # "history": self.history_best,
+            "history": history,  # just fitness per generation
+            
         }
 
 

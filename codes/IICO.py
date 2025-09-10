@@ -41,6 +41,8 @@ def iico(fun, max_FEs, n, dim, max_stagnation=3):
     search_history = []
     trajectory_first_dimension = []
     average_fitness = []
+    history = []  # best fitness per generation
+
 
     # Initialization
     X = [random.random() for _ in range(dim)]
@@ -256,7 +258,8 @@ def iico(fun, max_FEs, n, dim, max_stagnation=3):
             FEs_counts[i] = FEs_counts[ind]
     best_fitness_list = best_fitness_list[:num_it]
     FEs_counts = FEs_counts[:num_it]
-    return best_fitness_list, gbest
+    # return best_fitness_list, gbest
+    return best_fitness_list, gbest, {"history": best_fitness_list}
 
 
 def space_bound(X, dim, lb, ub):

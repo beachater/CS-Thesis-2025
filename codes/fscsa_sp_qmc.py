@@ -211,6 +211,7 @@ class FCSASPQMC:
     # ---------------- main loop (same as FCSA/FCSASP + optional pruning) ----------------
     def optimize(self):
         pop = self._init_population()
+        history = []  # best fitness per generation
 
         for gen in range(self.max_gens):
             if self.eval_count >= self.max_evals:
@@ -230,6 +231,7 @@ class FCSASPQMC:
 
             best = max(pop, key=lambda ab: ab.affinity)
             self.history_best.append((-best.affinity, best.x.copy()))
+            history.append(-best.affinity)
 
             if self.eval_count >= self.max_evals:
                 break
@@ -238,5 +240,7 @@ class FCSASPQMC:
         return best.x.copy(), -best.affinity, {
             "generations_run": len(self.history_best),
             "evals_used": self.eval_count,
-            "history": self.history_best,
+            # "history": self.history_best,
+            "history": history,  # just fitness per generation
+             
         }

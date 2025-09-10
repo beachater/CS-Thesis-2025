@@ -1,67 +1,6 @@
-FCSA Benchmark Results (runs per algorithm: 1)
+FCSA Benchmark Results (runs per algorithm: 100)
 
 NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
 Benchmark: Ackley
-  FCSA: mean=0.0651855, std=0
+  FCSA: mean=0.0651855, std=1.38778e-17
   Hybrid Original: mean=0.00555863, std=0
-  Hybrid Original + DE: mean=7.64278e-13, std=0
-  Adaptive Pruning: mean=0.0451339, std=0
-  Hybrid Pruning+DE: mean=0.00178221, std=0
-  Adaptive Pruning+DE: mean=0.00499566, std=0
-
-Benchmark: Griewank
-  FCSA: mean=0.041111, std=0
-  Hybrid Original: mean=0.00196289, std=0
-  Hybrid Original + DE: mean=4.05231e-14, std=0
-  Adaptive Pruning: mean=0.00196289, std=0
-  Hybrid Pruning+DE: mean=1.93927e-10, std=0
-  Adaptive Pruning+DE: mean=0.000625482, std=0
-
-Benchmark: Rastrigin
-  FCSA: mean=0.0428147, std=0
-  Hybrid Original: mean=7.65683e-05, std=0
-  Hybrid Original + DE: mean=5.31131e-13, std=0
-  Adaptive Pruning: mean=0.000264942, std=0
-  Hybrid Pruning+DE: mean=1.50288e-07, std=0
-  Adaptive Pruning+DE: mean=1.27181e-08, std=0
-
-Benchmark: Shubert
-  FCSA: mean=0.00114878, std=0
-  Hybrid Original: mean=1.52369e-05, std=0
-  Hybrid Original + DE: mean=5.16254e-15, std=0
-  Adaptive Pruning: mean=1.52369e-05, std=0
-  Hybrid Pruning+DE: mean=1.17405e-10, std=0
-  Adaptive Pruning+DE: mean=1.87669e-11, std=0
-
-Benchmark: Eggholder
-  FCSA: mean=0.000282924, std=0
-  Hybrid Original: mean=4.5519e-05, std=0
-  Hybrid Original + DE: mean=2.36762e-13, std=0
-  Adaptive Pruning: mean=0.000263963, std=0
-  Hybrid Pruning+DE: mean=1.68168e-07, std=0
-  Adaptive Pruning+DE: mean=4.64867e-05, std=0
-
-Benchmark: Holdertable
-  FCSA: mean=-19.1972, std=0
-  Hybrid Original: mean=-19.2085, std=0
-  Hybrid Original + DE: mean=-19.2085, std=0
-  Adaptive Pruning: mean=-19.193, std=0
-  Hybrid Pruning+DE: mean=-19.2085, std=0
-  Adaptive Pruning+DE: mean=-19.2085, std=0
-
-Benchmark: Schaffer 01
-  FCSA: mean=3.96606e-07, std=0
-  Hybrid Original: mean=8.66999e-09, std=0
-  Hybrid Original + DE: mean=1.7919e-13, std=0
-  Adaptive Pruning: mean=5.90451e-10, std=0
-  Hybrid Pruning+DE: mean=8.52873e-13, std=0
-  Adaptive Pruning+DE: mean=1.2269e-11, std=0
-
-Benchmark: Schaffer 02
-  FCSA: mean=8.36195e-05, std=0
-  Hybrid Original: mean=1.89605e-08, std=0
-  Hybrid Original + DE: mean=8.52651e-14, std=0
-  Adaptive Pruning: mean=1.23106e-07, std=0
-  Hybrid Pruning+DE: mean=6.10109e-10, std=0
-  Adaptive Pruning+DE: mean=1.00936e-07, std=0
-

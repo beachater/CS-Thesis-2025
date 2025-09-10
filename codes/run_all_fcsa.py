@@ -1,5 +1,6 @@
 
 import numpy as np
+import matplotlib.pyplot as plt
 from benchmark import get_function_by_name
 from fscsa import FCSA
 from fscsa_sp import FCSASP
@@ -31,66 +32,92 @@ benchmarks = [
 def run_fcsa(obj, bounds):
     opt = FCSA(obj, bounds)
     x_best, f_best, info = opt.optimize()
-    return f_best
+    # If info['history'] is available, return it for plotting, else just f_best
+    if 'history' in info:
+        return np.array(info['history'])
+    else:
+        return np.array([f_best])
 
 def run_fcsa_sp(obj, bounds):
     opt = FCSASP(obj, bounds)
     x_best, f_best, info = opt.optimize()
-    return f_best
+    if 'history' in info:
+        return np.array(info['history'])
+    else:
+        return np.array([f_best])
 
 def run_fcsa_sp_qmc(obj, bounds):
     opt = FCSASPQMC(obj, bounds)
     x_best, f_best, info = opt.optimize()
-    return f_best
+    if 'history' in info:
+        return np.array(info['history'])
+    else:
+        return np.array([f_best])
 
 def run_hybrid_pruning_adaptive(obj, bounds):
     opt = HybridCSA_adaptive(obj, bounds)
     x_best, f_best, info = opt.minimize()
-    return f_best
+    if 'history' in info:
+        return np.array(info['history'])
+    else:
+        return np.array([f_best])
 
 def run_hybrid_pruning_de_version(obj, bounds):
     opt = HybridCSA_pruning_de_version(obj, bounds)
     x_best, f_best, info = opt.minimize()
-    return f_best
+    if 'history' in info:
+        return np.array(info['history'])
+    else:
+        return np.array([f_best])
 
 def run_hybrid_pruning_de_version_adaptive(obj, bounds):
     opt = HybridCSA_pruning_de_version_adaptive(obj, bounds)
     x_best, f_best, info = opt.minimize()
-    return f_best
+    if 'history' in info:
+        return np.array(info['history'])
+    else:
+        return np.array([f_best])
 
 def run_hybrid_original_de(obj, bounds):
     opt = HybridCSAOriginal_de(obj, bounds)
     x_best, f_best, info = opt.minimize()
-    return f_best
+    if 'history' in info:
+        return np.array(info['history'])
+    else:
+        return np.array([f_best])
 
 def run_iico(obj, bounds, dim, max_evals, pop_size, bench_func=None):
-    # IICO expects fun (returns value, lb, ub), max_FEs, n, dim
-    # Use bench_func for bounds, obj for fitness
     def iico_obj(x):
         return obj(np.array(x))
-    # Pass bench_func for bounds, iico_obj for fitness
     def iico_fun(x):
-        # For initialization, return (value, lb, ub) as in benchmark.py
         y, lb, ub = bench_func(x)
         return y, lb, ub
-    # For fitness, IICO will call fun(x)[0], which is fine
-    best_fitness_list, gbest = IICO_func(iico_fun, max_evals, pop_size, dim)
-    return best_fitness_list[-1]
+    best_fitness_list, gbest, info = IICO_func(iico_fun, max_evals, pop_size, dim)
+    return np.array(info['history'])
 
 def run_hybrid_pruning(obj, bounds):
     opt = HybridCSA_pruning(obj, bounds)
     x_best, f_best, info = opt.minimize()
-    return f_best
+    if 'history' in info:
+        return np.array(info['history'])
+    else:
+        return np.array([f_best])
 
 def run_hybrid_pruning_sobol(obj, bounds):
     opt = HybridCSA_sobol(obj, bounds)
     x_best, f_best, info = opt.minimize()
-    return f_best
+    if 'history' in info:
+        return np.array(info['history'])
+    else:
+        return np.array([f_best])
 
 def run_hybrid_original(obj, bounds):
     opt = HybridCSAOriginal(obj, bounds)
     x_best, f_best, info = opt.minimize()
-    return f_best
+    if 'history' in info:
+        return np.array(info['history'])
+    else:
+        return np.array([f_best])
 
 algorithms = [
     ("FCSA", run_fcsa),
@@ -99,21 +126,35 @@ algorithms = [
     ("Adaptive Pruning", run_hybrid_pruning_adaptive),
     ("Hybrid Pruning+DE", run_hybrid_pruning_de_version),
     ("Adaptive Pruning+DE", run_hybrid_pruning_de_version_adaptive),
-    # ("FCSA+SP", run_fcsa_sp),
-    # ("FCSA+SP+QMC", run_fcsa_sp_qmc),
-    # ("IICO", run_iico),
-    # ("HybridCSA-Pruning", run_hybrid_pruning),
-    # ("HybridCSA-Sobol", run_hybrid_pruning_sobol),
+    ("FCSA+SP", run_fcsa_sp),
+    ("FCSA+SP+QMC", run_fcsa_sp_qmc),
+    ("IICO", run_iico),
+    ("HybridCSA-Pruning", run_hybrid_pruning),
+    ("HybridCSA-Sobol", run_hybrid_pruning_sobol),
 ]
 
 
 import argparse
 
 
+
+def pad_histories(histories):
+    # Pad all histories to the same length with their last value
+    max_len = max(len(h) for h in histories)
+    padded = []
+    for h in histories:
+        if len(h) < max_len:
+            pad_val = h[-1]
+            h = np.concatenate([h, np.full(max_len - len(h), pad_val)])
+        padded.append(h)
+    return np.array(padded)
+
 def run_all(n_runs=100, log_file="fcsa_benchmark_log.txt", dim=None):
-    # Note: IICO and HybridCSA require extra packages: matplotlib, openpyxl, scipy (for sobol), numpy
-    # Install with: pip install matplotlib openpyxl scipy numpy
+    import matplotlib.pyplot as plt
+    import os
     results = []
+    fig_dir = os.path.join(os.path.dirname(__file__), '../fig')
+    os.makedirs(fig_dir, exist_ok=True)
     with open(log_file, "w") as f:
         f.write(f"FCSA Benchmark Results (runs per algorithm: {n_runs})\n\n")
         f.write("NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.\n")
@@ -121,10 +162,8 @@ def run_all(n_runs=100, log_file="fcsa_benchmark_log.txt", dim=None):
             f.write(f"Benchmark: {bench_disp}\n")
             print(f"\nBenchmark: {bench_disp}")
             func = get_function_by_name(bench_name)
-            # Get default bounds from the function
             dummy_x = np.zeros(2)
             _, lb, ub = func(dummy_x)
-            # If dim is provided, use it, else use default logic
             if dim is not None:
                 bench_dim = dim
             else:
@@ -133,22 +172,37 @@ def run_all(n_runs=100, log_file="fcsa_benchmark_log.txt", dim=None):
             def obj(x):
                 y, _, _ = func(x)
                 return y
+            plt.figure(figsize=(10, 6))
             for alg_name, runner in algorithms:
                 print(f"  Algorithm: {alg_name}")
-                best_vals = []
+                histories = []
                 for run in range(n_runs):
                     if alg_name == "IICO":
-                        # IICO expects: obj, bounds, dim, max_evals, pop_size, bench_func
                         max_evals = 350_000
                         pop_size = 60
-                        val = runner(obj, bounds, bench_dim, max_evals, pop_size, func)
+                        history = runner(obj, bounds, bench_dim, max_evals, pop_size, func)
                     else:
-                        val = runner(obj, bounds)
-                    best_vals.append(val)
-                mean = np.mean(best_vals)
-                std = np.std(best_vals)
-                f.write(f"  {alg_name}: mean={mean:.6g}, std={std:.6g}\n")
-                print(f"    mean: {mean:.6g}, std: {std:.6g}")
+                        history = runner(obj, bounds)
+                    histories.append(np.array(history))
+                histories = pad_histories(histories)
+                mean_curve = np.mean(histories, axis=0)
+                std_curve = np.std(histories, axis=0)
+                gens = np.arange(len(mean_curve))
+                plt.plot(gens, mean_curve, label=alg_name)
+                plt.fill_between(gens, mean_curve - std_curve, mean_curve + std_curve, alpha=0.2)
+                # Log only the final generation's mean/std
+                f.write(f"  {alg_name}: mean={mean_curve[-1]:.6g}, std={std_curve[-1]:.6g}\n")
+                print(f"    mean: {mean_curve[-1]:.6g}, std: {std_curve[-1]:.6g}")
+            plt.title(f"Convergence Curves: {bench_disp}")
+            plt.xlabel("Generation")
+            plt.ylabel("Best Fitness")
+            plt.legend()
+            plt.grid(True)
+            plt.tight_layout()
+            fig_path = os.path.join(fig_dir, f"convergence_{bench_disp.replace(' ', '_')}.png")
+            plt.savefig(fig_path)
+            plt.close()
+            print(f"  Saved plot: {fig_path}")
             f.write("\n")
 
 if __name__ == "__main__":
