@@ -177,8 +177,8 @@ def pad_histories(histories):
 def run_all_dims():
     import matplotlib.pyplot as plt
     import os
-    dims = [2, 4, 6]
-    n_runs = 2
+    dims = [2, 50, 100]
+    n_runs = 100
     for dim in dims:
         # Folder and log for this dimension
         fig_dir = os.path.join(os.path.dirname(__file__), f'../fig/dim_{dim}')
