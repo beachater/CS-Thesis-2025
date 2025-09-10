@@ -1,0 +1,64 @@
+Test 1 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  FCSA: mean=0.00139534, std=0
+  FCSA-Levy: mean=0.00336096, std=0
+  Hybrid Original: mean=8.20168e-05, std=0
+  Hybrid Original + DE: mean=4.44089e-16, std=0
+  Adaptive Pruning: mean=6.94902, std=0
+  Hybrid Pruning+DE: mean=3.17922, std=0
+  Adaptive Pruning+DE: mean=3.17922, std=0
+  FCSA+SP: mean=0.00150105, std=0
+  FCSA+SP+QMC: mean=0.00261652, std=0
+  IICO: mean=4.44089e-16, std=0
+  HybridCSA-Pruning: mean=6.37611e-05, std=0
+  HybridCSA-Sobol: mean=0.00047549, std=0
+  HybridCSA++ (Memory Adaptive): mean=3.57445, std=0
+
+Benchmark: Griewank
+  FCSA: mean=3.75391e-05, std=0
+  FCSA-Levy: mean=0.000145177, std=0
+  Hybrid Original: mean=2.02107e-08, std=0
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=0.218382, std=0
+  Hybrid Pruning+DE: mean=0.0264489, std=0
+  Adaptive Pruning+DE: mean=0.370358, std=0
+  FCSA+SP: mean=5.00003e-05, std=0
+  FCSA+SP+QMC: mean=0.000280548, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=2.00465e-05, std=0
+  HybridCSA-Sobol: mean=5.74457e-05, std=0
+  HybridCSA++ (Memory Adaptive): mean=0, std=0
+
+Benchmark: Rastrigin
+  FCSA: mean=5.1541e-07, std=0
+  FCSA-Levy: mean=0, std=0
+  Hybrid Original: mean=1.9759e-09, std=0
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=0.0124162, std=0
+  Hybrid Pruning+DE: mean=0.192484, std=0
+  Adaptive Pruning+DE: mean=1.41258, std=0
+  FCSA+SP: mean=5.78169e-11, std=0
+  FCSA+SP+QMC: mean=2.41848e-08, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=7.60539e-08, std=0
+  HybridCSA-Sobol: mean=6.44559e-07, std=0
+  HybridCSA++ (Memory Adaptive): mean=0.994959, std=0
+
+Benchmark: Shubert
+  FCSA: mean=0, std=0
+  FCSA-Levy: mean=0, std=0
+  Hybrid Original: mean=0, std=0
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=0, std=0
+  Hybrid Pruning+DE: mean=0, std=0
+  Adaptive Pruning+DE: mean=0, std=0
+  FCSA+SP: mean=0, std=0
+  FCSA+SP+QMC: mean=0, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=0, std=0
+  HybridCSA-Sobol: mean=0, std=0
+  HybridCSA++ (Memory Adaptive): mean=0, std=0
+
+Benchmark: Eggholder

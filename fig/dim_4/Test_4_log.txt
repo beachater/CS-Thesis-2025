@@ -1,0 +1,123 @@
+Test 4 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  FCSA: mean=2.45466, std=0
+  FCSA-Levy: mean=1.55123, std=0
+  Hybrid Original: mean=0.367049, std=0
+  Hybrid Original + DE: mean=4.44089e-16, std=0
+  Adaptive Pruning: mean=17.677, std=0
+  Hybrid Pruning+DE: mean=16.5196, std=0
+  Adaptive Pruning+DE: mean=14.0759, std=0
+  FCSA+SP: mean=0.227851, std=0
+  FCSA+SP+QMC: mean=0.327579, std=0
+  IICO: mean=4.44089e-16, std=0
+  HybridCSA-Pruning: mean=0.367049, std=0
+  HybridCSA-Sobol: mean=0.735158, std=0
+  HybridCSA++ (Memory Adaptive): mean=1.24443e-09, std=0
+
+Benchmark: Griewank
+  FCSA: mean=0.679863, std=0
+  FCSA-Levy: mean=0.13629, std=0
+  Hybrid Original: mean=0.168335, std=0
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=17.8311, std=0
+  Hybrid Pruning+DE: mean=0.200826, std=0
+  Adaptive Pruning+DE: mean=11.9839, std=0
+  FCSA+SP: mean=0.313691, std=0
+  FCSA+SP+QMC: mean=0.0722201, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=0.168335, std=0
+  HybridCSA-Sobol: mean=0.213405, std=0
+  HybridCSA++ (Memory Adaptive): mean=0.184842, std=0
+
+Benchmark: Rastrigin
+  FCSA: mean=1.39161, std=0
+  FCSA-Levy: mean=2.05225, std=0
+  Hybrid Original: mean=0.0599301, std=0
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=0.0599301, std=0
+  Hybrid Pruning+DE: mean=0.736788, std=0
+  Adaptive Pruning+DE: mean=0.193924, std=0
+  FCSA+SP: mean=0.276112, std=0
+  FCSA+SP+QMC: mean=0.0150384, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=0.0599301, std=0
+  HybridCSA-Sobol: mean=0.228578, std=0
+  HybridCSA++ (Memory Adaptive): mean=0, std=0
+
+Benchmark: Shubert
+  FCSA: mean=0.0308199, std=0
+  FCSA-Levy: mean=0.0299883, std=0
+  Hybrid Original: mean=0.00482748, std=0
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=0.00482748, std=0
+  Hybrid Pruning+DE: mean=0.0258284, std=0
+  Adaptive Pruning+DE: mean=0.041626, std=0
+  FCSA+SP: mean=0.0291687, std=0
+  FCSA+SP+QMC: mean=0.0226898, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=0.00482748, std=0
+  HybridCSA-Sobol: mean=0.00495678, std=0
+  HybridCSA++ (Memory Adaptive): mean=3.88578e-16, std=0
+
+Benchmark: Eggholder
+  FCSA: mean=0.0103221, std=0
+  FCSA-Levy: mean=1.09425e-07, std=0
+  Hybrid Original: mean=1.8652e-05, std=0
+  Hybrid Original + DE: mean=2.16232e-188, std=0
+  Adaptive Pruning: mean=1.8652e-05, std=0
+  Hybrid Pruning+DE: mean=4.34814e-16, std=0
+  Adaptive Pruning+DE: mean=9.36322e-05, std=0
+  FCSA+SP: mean=0.00335933, std=0
+  FCSA+SP+QMC: mean=0.00327555, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=1.8652e-05, std=0
+  HybridCSA-Sobol: mean=3.47679e-05, std=0
+  HybridCSA++ (Memory Adaptive): mean=3.53596e-123, std=0
+
+Benchmark: Holdertable
+  FCSA: mean=-19.2011, std=0
+  FCSA-Levy: mean=-19.2084, std=0
+  Hybrid Original: mean=-19.2085, std=0
+  Hybrid Original + DE: mean=-19.2085, std=0
+  Adaptive Pruning: mean=-18.982, std=0
+  Hybrid Pruning+DE: mean=-19.2085, std=0
+  Adaptive Pruning+DE: mean=-19.2085, std=0
+  FCSA+SP: mean=-19.2046, std=0
+  FCSA+SP+QMC: mean=-19.2073, std=0
+  IICO: mean=-19.2085, std=8.99725e-12
+  HybridCSA-Pruning: mean=-19.0816, std=0
+  HybridCSA-Sobol: mean=-11.1142, std=0
+  HybridCSA++ (Memory Adaptive): mean=-19.2085, std=0
+
+Benchmark: Schaffer 01
+  FCSA: mean=0, std=0
+  FCSA-Levy: mean=0, std=0
+  Hybrid Original: mean=0, std=0
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=0, std=0
+  Hybrid Pruning+DE: mean=0, std=0
+  Adaptive Pruning+DE: mean=0, std=0
+  FCSA+SP: mean=0, std=0
+  FCSA+SP+QMC: mean=0, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=0, std=0
+  HybridCSA-Sobol: mean=0, std=0
+  HybridCSA++ (Memory Adaptive): mean=0, std=0
+
+Benchmark: Schaffer 02
+  FCSA: mean=0, std=0
+  FCSA-Levy: mean=0, std=0
+  Hybrid Original: mean=0, std=0
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=0, std=0
+  Hybrid Pruning+DE: mean=0, std=0
+  Adaptive Pruning+DE: mean=0, std=0
+  FCSA+SP: mean=0, std=0
+  FCSA+SP+QMC: mean=0, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=0, std=0
+  HybridCSA-Sobol: mean=0, std=0
+  HybridCSA++ (Memory Adaptive): mean=0, std=0
+

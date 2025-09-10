@@ -4,7 +4,29 @@ import matplotlib.pyplot as plt
 from benchmark import get_function_by_name
 from fscsa import FCSA
 from fscsa_sp import FCSASP
+
 from fscsa_sp_qmc import FCSASPQMC
+from fcsa_levy import fcsa_hybrid_levy
+from hybrid_csa_chaos_sobol_δx_memory_adaptive_pruning import HybridCSAPlus
+# Algorithm runners: (name, runner function)
+def run_fcsa_levy(obj, bounds):
+    x_best, f_best, info = fcsa_hybrid_levy(obj, bounds)
+    if 'history' in info:
+        return np.array(info['history'])
+    else:
+        return np.array([f_best])
+
+def run_hybrid_memory_adaptive(obj, bounds):
+    opt = HybridCSAPlus(obj, bounds)
+    x_best, f_best, info = opt.minimize()
+    # info['history'] may be a list of (fitness, x), so extract fitness if needed
+    hist = info.get('history', [f_best])
+    if len(hist) > 0 and isinstance(hist[0], (tuple, list, np.ndarray)):
+        # If tuple/list, assume (fitness, x)
+        fitness_hist = [h[0] if isinstance(h, (tuple, list)) else h for h in hist]
+        return np.array(fitness_hist)
+    else:
+        return np.array(hist)
 
 # --- Import IICO and HybridCSA variants ---
 from IICO import iico as IICO_func
@@ -121,6 +143,7 @@ def run_hybrid_original(obj, bounds):
 
 algorithms = [
     ("FCSA", run_fcsa),
+    ("FCSA-Levy", run_fcsa_levy),
     ("Hybrid Original", run_hybrid_original),
     ("Hybrid Original + DE", run_hybrid_original_de),
     ("Adaptive Pruning", run_hybrid_pruning_adaptive),
@@ -131,9 +154,7 @@ algorithms = [
     ("IICO", run_iico),
     ("HybridCSA-Pruning", run_hybrid_pruning),
     ("HybridCSA-Sobol", run_hybrid_pruning_sobol),
-    # fcsa_levy
-    # hybrid_csa_chaos_sobol_δx_memory_adaptive_pruning
-    # levy_vs_iico
+    ("HybridCSA++ (Memory Adaptive)", run_hybrid_memory_adaptive),
 ]
 
 
@@ -152,66 +173,63 @@ def pad_histories(histories):
         padded.append(h)
     return np.array(padded)
 
-def run_all(n_runs=100, log_file="fcsa_benchmark_log.txt", dim=None):
+
+def run_all_dims():
     import matplotlib.pyplot as plt
     import os
-    results = []
-    fig_dir = os.path.join(os.path.dirname(__file__), '../fig')
-    os.makedirs(fig_dir, exist_ok=True)
-    with open(log_file, "w") as f:
-        f.write(f"FCSA Benchmark Results (runs per algorithm: {n_runs})\n\n")
-        f.write("NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.\n")
-        for bench_disp, bench_name in benchmarks:
-            f.write(f"Benchmark: {bench_disp}\n")
-            print(f"\nBenchmark: {bench_disp}")
-            func = get_function_by_name(bench_name)
-            dummy_x = np.zeros(2)
-            _, lb, ub = func(dummy_x)
-            if dim is not None:
+    dims = [2, 4, 6]
+    n_runs = 2
+    for dim in dims:
+        # Folder and log for this dimension
+        fig_dir = os.path.join(os.path.dirname(__file__), f'../fig/dim_{dim}')
+        os.makedirs(fig_dir, exist_ok=True)
+        log_file = os.path.join(fig_dir, f'Test_{dim}_log.txt')
+        with open(log_file, "w") as f:
+            f.write(f"Test {dim} - FCSA Benchmark Results (100 runs per algorithm)\n\n")
+            f.write("NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.\n")
+            for bench_disp, bench_name in benchmarks:
+                f.write(f"Benchmark: {bench_disp}\n")
+                print(f"\nBenchmark: {bench_disp} (dim={dim})")
+                func = get_function_by_name(bench_name)
+                dummy_x = np.zeros(2)
+                _, lb, ub = func(dummy_x)
                 bench_dim = dim
-            else:
-                bench_dim = 30 if bench_disp not in ["Holdertable", "Eggholder", "Eggcrate", "Schaffer 01", "Schaffer 02"] else 2
-            bounds = [(lb, ub)] * bench_dim
-            def obj(x):
-                y, _, _ = func(x)
-                return y
-            plt.figure(figsize=(10, 6))
-            for alg_name, runner in algorithms:
-                print(f"  Algorithm: {alg_name}")
-                histories = []
-                for run in range(n_runs):
-                    if alg_name == "IICO":
-                        max_evals = 350_000
-                        pop_size = 60
-                        history = runner(obj, bounds, bench_dim, max_evals, pop_size, func)
-                    else:
-                        history = runner(obj, bounds)
-                    histories.append(np.array(history))
-                histories = pad_histories(histories)
-                mean_curve = np.mean(histories, axis=0)
-                std_curve = np.std(histories, axis=0)
-                gens = np.arange(len(mean_curve))
-                plt.plot(gens, mean_curve, label=alg_name)
-                plt.fill_between(gens, mean_curve - std_curve, mean_curve + std_curve, alpha=0.2)
-                # Log only the final generation's mean/std
-                f.write(f"  {alg_name}: mean={mean_curve[-1]:.6g}, std={std_curve[-1]:.6g}\n")
-                print(f"    mean: {mean_curve[-1]:.6g}, std: {std_curve[-1]:.6g}")
-            plt.title(f"Convergence Curves: {bench_disp}")
-            plt.xlabel("Generation")
-            plt.ylabel("Best Fitness")
-            plt.legend()
-            plt.grid(True)
-            plt.tight_layout()
-            fig_path = os.path.join(fig_dir, f"convergence_{bench_disp.replace(' ', '_')}.png")
-            plt.savefig(fig_path)
-            plt.close()
-            print(f"  Saved plot: {fig_path}")
-            f.write("\n")
+                bounds = [(lb, ub)] * bench_dim
+                def obj(x):
+                    y, _, _ = func(x)
+                    return y
+                plt.figure(figsize=(10, 6))
+                for alg_name, runner in algorithms:
+                    print(f"  Algorithm: {alg_name}")
+                    histories = []
+                    for run in range(n_runs):
+                        if alg_name == "IICO":
+                            max_evals = 350_000
+                            pop_size = 60
+                            history = runner(obj, bounds, bench_dim, max_evals, pop_size, func)
+                        else:
+                            history = runner(obj, bounds)
+                        histories.append(np.array(history))
+                    histories = pad_histories(histories)
+                    mean_curve = np.mean(histories, axis=0)
+                    std_curve = np.std(histories, axis=0)
+                    gens = np.arange(len(mean_curve))
+                    plt.plot(gens, mean_curve, label=alg_name)
+                    plt.fill_between(gens, mean_curve - std_curve, mean_curve + std_curve, alpha=0.2)
+                    # Log only the final generation's mean/std
+                    f.write(f"  {alg_name}: mean={mean_curve[-1]:.6g}, std={std_curve[-1]:.6g}\n")
+                    print(f"    mean: {mean_curve[-1]:.6g}, std: {std_curve[-1]:.6g}")
+                plt.title(f"Convergence Curves: {bench_disp} (100 runs, dim={dim})")
+                plt.xlabel("Generation")
+                plt.ylabel("Best Fitness")
+                plt.legend()
+                plt.grid(True)
+                plt.tight_layout()
+                fig_path = os.path.join(fig_dir, f"convergence_{bench_disp.replace(' ', '_')}_dim{dim}.png")
+                plt.savefig(fig_path)
+                plt.close()
+                print(f"  Saved plot: {fig_path}")
+                f.write("\n")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--runs", type=int, default=100, help="Number of runs per algorithm")
-    parser.add_argument("--log", type=str, default="fcsa_benchmark_log.txt", help="Log file name")
-    parser.add_argument("--dim", type=int, default=None, help="Dimension of the benchmark functions (overrides default)")
-    args = parser.parse_args()
-    run_all(n_runs=args.runs, log_file=args.log, dim=args.dim)
+    run_all_dims()
