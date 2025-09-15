@@ -1,0 +1,123 @@
+Test 100 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  FCSA: mean=10.8288, std=0.340819
+  FCSA-Levy: mean=9.07853, std=0.294671
+  Hybrid Original: mean=9.24386, std=0.188992
+  Hybrid Original + DE: mean=4.44089e-16, std=0
+  Adaptive Pruning: mean=9.24386, std=0.188992
+  Hybrid Pruning+DE: mean=11.0729, std=7.87152
+  Adaptive Pruning+DE: mean=14.6018, std=7.19944
+  FCSA+SP: mean=10.8551, std=0.313481
+  FCSA+SP+QMC: mean=10.8276, std=0.326641
+  IICO: mean=4.44089e-16, std=0
+  HybridCSA-Pruning: mean=9.24386, std=0.188992
+  HybridCSA-Sobol: mean=9.26025, std=0.186854
+  HybridCSA++ (Memory Adaptive): mean=5.38965, std=0.186698
+
+Benchmark: Griewank
+  FCSA: mean=77.8735, std=8.14362
+  FCSA-Levy: mean=32.6654, std=3.07718
+  Hybrid Original: mean=48.6344, std=3.14638
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=48.6344, std=3.14638
+  Hybrid Pruning+DE: mean=1784.29, std=1052.23
+  Adaptive Pruning+DE: mean=1434.31, std=1160.97
+  FCSA+SP: mean=77.8643, std=7.62094
+  FCSA+SP+QMC: mean=79.3224, std=6.7814
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=48.6344, std=3.14638
+  HybridCSA-Sobol: mean=48.2582, std=3.03618
+  HybridCSA++ (Memory Adaptive): mean=11.0073, std=0.942588
+
+Benchmark: Rastrigin
+  FCSA: mean=728.214, std=49.6573
+  FCSA-Levy: mean=559.655, std=54.9216
+  Hybrid Original: mean=580.973, std=17.8641
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=580.973, std=17.8641
+  Hybrid Pruning+DE: mean=701.494, std=678.815
+  Adaptive Pruning+DE: mean=897.198, std=582.978
+  FCSA+SP: mean=731.859, std=58.077
+  FCSA+SP+QMC: mean=725.145, std=54.0737
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=580.973, std=17.8641
+  HybridCSA-Sobol: mean=581.133, std=19.3477
+  HybridCSA++ (Memory Adaptive): mean=289.672, std=14.9561
+
+Benchmark: Shubert
+  FCSA: mean=22.0984, std=1.34386
+  FCSA-Levy: mean=14.3211, std=0.974769
+  Hybrid Original: mean=34.381, std=1.09737
+  Hybrid Original + DE: mean=4.07143, std=11.0411
+  Adaptive Pruning: mean=34.381, std=1.09737
+  Hybrid Pruning+DE: mean=34.0222, std=7.90193
+  Adaptive Pruning+DE: mean=34.8997, std=6.15008
+  FCSA+SP: mean=22.203, std=1.2925
+  FCSA+SP+QMC: mean=22.2608, std=1.37036
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=34.381, std=1.09737
+  HybridCSA-Sobol: mean=34.4127, std=0.97659
+  HybridCSA++ (Memory Adaptive): mean=16.4908, std=1.12907
+
+Benchmark: Eggholder
+  FCSA: mean=0.00445658, std=0.00471012
+  FCSA-Levy: mean=0.00070973, std=0.00122268
+  Hybrid Original: mean=2.33303e-05, std=2.71755e-05
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=2.33303e-05, std=2.71755e-05
+  Hybrid Pruning+DE: mean=0.0702009, std=0.697925
+  Adaptive Pruning+DE: mean=3.22198, std=4.62702
+  FCSA+SP: mean=0.00531665, std=0.00659583
+  FCSA+SP+QMC: mean=0.00385759, std=0.00375025
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=2.33303e-05, std=2.71755e-05
+  HybridCSA-Sobol: mean=2.15655e-05, std=2.25816e-05
+  HybridCSA++ (Memory Adaptive): mean=1.14701e-06, std=1.53844e-06
+
+Benchmark: Holdertable
+  FCSA: mean=-19.2025, std=0.00590492
+  FCSA-Levy: mean=-19.2073, std=0.002468
+  Hybrid Original: mean=-19.2085, std=3.89537e-14
+  Hybrid Original + DE: mean=-19.2085, std=3.87392e-14
+  Adaptive Pruning: mean=-17.5571, std=3.07209
+  Hybrid Pruning+DE: mean=-19.2085, std=3.87392e-14
+  Adaptive Pruning+DE: mean=-19.2085, std=3.87392e-14
+  FCSA+SP: mean=-19.2021, std=0.00528808
+  FCSA+SP+QMC: mean=-19.2018, std=0.00766989
+  IICO: mean=-19.2085, std=0.000148292
+  HybridCSA-Pruning: mean=-18.6192, std=1.89406
+  HybridCSA-Sobol: mean=-18.2393, std=2.23962
+  HybridCSA++ (Memory Adaptive): mean=-19.0347, std=0.323154
+
+Benchmark: Schaffer 01
+  FCSA: mean=0, std=0
+  FCSA-Levy: mean=0, std=0
+  Hybrid Original: mean=0, std=0
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=0, std=0
+  Hybrid Pruning+DE: mean=0, std=0
+  Adaptive Pruning+DE: mean=0, std=0
+  FCSA+SP: mean=0, std=0
+  FCSA+SP+QMC: mean=0, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=0, std=0
+  HybridCSA-Sobol: mean=0, std=0
+  HybridCSA++ (Memory Adaptive): mean=0, std=0
+
+Benchmark: Schaffer 02
+  FCSA: mean=0, std=0
+  FCSA-Levy: mean=0, std=0
+  Hybrid Original: mean=0, std=0
+  Hybrid Original + DE: mean=0, std=0
+  Adaptive Pruning: mean=0, std=0
+  Hybrid Pruning+DE: mean=0, std=0
+  Adaptive Pruning+DE: mean=0, std=0
+  FCSA+SP: mean=0, std=0
+  FCSA+SP+QMC: mean=0, std=0
+  IICO: mean=0, std=0
+  HybridCSA-Pruning: mean=0, std=0
+  HybridCSA-Sobol: mean=0, std=0
+  HybridCSA++ (Memory Adaptive): mean=0, std=0
+
