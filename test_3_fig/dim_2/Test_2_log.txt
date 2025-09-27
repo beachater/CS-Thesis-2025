@@ -1,0 +1,59 @@
+Test 2 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  Hybrid Original: mean=0.0114804, std=0
+  Hybrid TFO: mean=0.00250892, std=0
+  Hybrid CDO: mean=0.0745093, std=0
+  Hybrid RSO: mean=0.00216637, std=0
+  Hybrid IBP: mean=4.43138e-05, std=0
+
+Benchmark: Griewank
+  Hybrid Original: mean=0.00106845, std=0
+  Hybrid TFO: mean=7.41357e-05, std=0
+  Hybrid CDO: mean=0.00131519, std=0
+  Hybrid RSO: mean=2.78435e-05, std=0
+  Hybrid IBP: mean=1.17061e-07, std=0
+
+Benchmark: Rastrigin
+  Hybrid Original: mean=0.000239943, std=0
+  Hybrid TFO: mean=2.78624e-06, std=0
+  Hybrid CDO: mean=5.786e-06, std=0
+  Hybrid RSO: mean=4.25878e-06, std=0
+  Hybrid IBP: mean=1.70824e-07, std=0
+
+Benchmark: Shubert
+  Hybrid Original: mean=4.06221e-06, std=0
+  Hybrid TFO: mean=5.60246e-09, std=0
+  Hybrid CDO: mean=1.47409e-05, std=0
+  Hybrid RSO: mean=3.01638e-08, std=0
+  Hybrid IBP: mean=2.01853e-10, std=0
+
+Benchmark: Eggholder
+  Hybrid Original: mean=2.37765e-05, std=0
+  Hybrid TFO: mean=3.04496e-07, std=0
+  Hybrid CDO: mean=2.49274e-05, std=0
+  Hybrid RSO: mean=1.96227e-08, std=0
+  Hybrid IBP: mean=1.07842e-08, std=0
+
+Benchmark: Holdertable
+  Hybrid Original: mean=-19.2085, std=0
+  Hybrid TFO: mean=-19.2085, std=0
+  Hybrid CDO: mean=-19.1934, std=0
+  Hybrid RSO: mean=-19.2085, std=0
+  Hybrid IBP: mean=-19.2085, std=0
+
+Benchmark: Schaffer 01
+  Hybrid Original: mean=2.87843e-09, std=0
+  Hybrid TFO: mean=6.67562e-11, std=0
+  Hybrid CDO: mean=2.25654e-08, std=0
+  Hybrid RSO: mean=6.36874e-12, std=0
+  Hybrid IBP: mean=8.46878e-13, std=0
+
+Benchmark: Schaffer 02
+  Hybrid Original: mean=1.59754e-08, std=0
+  Hybrid TFO: mean=5.51612e-09, std=0
+  Hybrid CDO: mean=8.41881e-08, std=0
+  Hybrid RSO: mean=5.46175e-09, std=0
+  Hybrid IBP: mean=3.45013e-11, std=0
+

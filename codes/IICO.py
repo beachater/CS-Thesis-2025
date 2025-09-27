@@ -38,7 +38,8 @@ def iico(fun, max_FEs, n, dim, max_stagnation=3, seed=None):
     sigma_final = 0.1  # The final value of standard deviation
     beta = 100
     minimum = 0.
-    num_it = round(max_FEs / n)
+    # num_it = round(max_FEs / n)
+    num_it = 1000
     stagnation_num = 0
 
     best_fitness_list = []

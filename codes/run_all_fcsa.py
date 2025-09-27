@@ -37,6 +37,7 @@ from hybrid_pruning_de_version import HybridCSA_pruning_de_version
 from hybrid_pruning_de_version_adaptive import HybridCSA_pruning_de_version_adaptive
 from FCSA_IICO_Hybrid_original import HybridCSAOriginal
 from hybrid_original_de import HybridCSAOriginal_de
+from hybrid_original_composed import HybridCSAOperators
 
 # List of benchmark function names and their canonical names in benchmark.py
 benchmarks = [
@@ -140,21 +141,46 @@ def run_hybrid_original(obj, bounds, seed=None):
         return np.array(info['history'])
     else:
         return np.array([f_best])
+    
+def run_hybrid_tfo(obj, bounds, seed=None):
+    opt = HybridCSAOperators(obj, bounds, operator="tfo", seed=seed)
+    x_best, f_best, info = opt.minimize()
+    return np.array(info.get("history", [f_best]))
+
+def run_hybrid_cdo(obj, bounds, seed=None):
+    opt = HybridCSAOperators(obj, bounds, operator="cdo", seed=seed)
+    x_best, f_best, info = opt.minimize()
+    return np.array(info.get("history", [f_best]))
+
+def run_hybrid_rso(obj, bounds, seed=None):
+    opt = HybridCSAOperators(obj, bounds, operator="rso", seed=seed)
+    x_best, f_best, info = opt.minimize()
+    return np.array(info.get("history", [f_best]))
+
+def run_hybrid_ibp(obj, bounds, seed=None):
+    opt = HybridCSAOperators(obj, bounds, operator="ibp", seed=seed)
+    x_best, f_best, info = opt.minimize()
+    return np.array(info.get("history", [f_best]))
+
 
 algorithms = [
-    ("FCSA", run_fcsa),
-    ("FCSA-Levy", run_fcsa_levy),
+    # ("FCSA", run_fcsa),
+    # ("FCSA-Levy", run_fcsa_levy),
     ("Hybrid Original", run_hybrid_original),
-    ("Hybrid Original + DE", run_hybrid_original_de),
-    ("Adaptive Pruning", run_hybrid_pruning_adaptive),
-    ("Hybrid Pruning+DE", run_hybrid_pruning_de_version),
-    ("Adaptive Pruning+DE", run_hybrid_pruning_de_version_adaptive),
-    ("FCSA+SP", run_fcsa_sp),
-    ("FCSA+SP+QMC", run_fcsa_sp_qmc),
-    ("IICO", run_iico),
-    ("HybridCSA-Pruning", run_hybrid_pruning),
-    ("HybridCSA-Sobol", run_hybrid_pruning_sobol),
-    ("HybridCSA++ (Memory Adaptive)", run_hybrid_memory_adaptive),
+    # ("Hybrid Original + DE", run_hybrid_original_de),
+    # ("Adaptive Pruning", run_hybrid_pruning_adaptive),
+    # ("Hybrid Pruning+DE", run_hybrid_pruning_de_version),
+    # ("Adaptive Pruning+DE", run_hybrid_pruning_de_version_adaptive),
+    # ("FCSA+SP", run_fcsa_sp),
+    # ("FCSA+SP+QMC", run_fcsa_sp_qmc),
+    # ("IICO", run_iico),
+    # ("HybridCSA-Pruning", run_hybrid_pruning),
+    # ("HybridCSA-Sobol", run_hybrid_pruning_sobol),
+    # ("HybridCSA++ (Memory Adaptive)", run_hybrid_memory_adaptive),
+    ("Hybrid TFO", run_hybrid_tfo),
+    ("Hybrid CDO", run_hybrid_cdo),
+    ("Hybrid RSO", run_hybrid_rso),
+    ("Hybrid IBP", run_hybrid_ibp),
 ]
 
 
@@ -177,11 +203,13 @@ def pad_histories(histories):
 def run_all_dims():
     import matplotlib.pyplot as plt
     import os
-    dims = [50, 100]
-    n_runs = 100
+    import csv
+    # dims = [2, 50, 100]
+    dims = [2]
+    n_runs = 1
     for dim in dims:
         # Folder and log for this dimension
-        fig_dir = os.path.join(os.path.dirname(__file__), f'../fig/dim_{dim}')
+        fig_dir = os.path.join(os.path.dirname(__file__), f'../test_3_fig/dim_{dim}')
         os.makedirs(fig_dir, exist_ok=True)
         log_file = os.path.join(fig_dir, f'Test_{dim}_log.txt')
         with open(log_file, "w") as f:
@@ -219,6 +247,20 @@ def run_all_dims():
                     # Log only the final generation's mean/std
                     f.write(f"  {alg_name}: mean={mean_curve[-1]:.6g}, std={std_curve[-1]:.6g}\n")
                     print(f"    mean: {mean_curve[-1]:.6g}, std: {std_curve[-1]:.6g}")
+
+                    # --- Save CSV for this algorithm/benchmark/dim ---
+                    csv_filename = f"{alg_name}_{bench_disp.replace(' ', '_')}_dim{dim}_runs.csv"
+                    csv_path = os.path.join(fig_dir, csv_filename)
+                    with open(csv_path, "w", newline='') as csvfile:
+                        writer = csv.writer(csvfile)
+                        # Header: generation, run_0, run_1, ...
+                        header = ["generation"] + [f"run_{i}" for i in range(n_runs)]
+                        writer.writerow(header)
+                        for gen in range(len(mean_curve)):
+                            row = [gen] + [histories[run][gen] for run in range(n_runs)]
+                            writer.writerow(row)
+                    print(f"    Saved CSV: {csv_path}")
+
                 plt.title(f"Convergence Curves: {bench_disp} (100 runs, dim={dim})")
                 plt.xlabel("Generation")
                 plt.ylabel("Best Fitness")
