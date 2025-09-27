@@ -205,8 +205,8 @@ def run_all_dims():
     import os
     import csv
     # dims = [2, 50, 100]
-    dims = [2]
-    n_runs = 1
+    dims = [2,50, 100]
+    n_runs = 100
     for dim in dims:
         # Folder and log for this dimension
         fig_dir = os.path.join(os.path.dirname(__file__), f'../test_3_fig/dim_{dim}')
