@@ -1,0 +1,14 @@
+Test 100 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  IICO: mean=4.44089e-16, std=0
+  Hybrid TFO: mean=2.11543, std=0.0101788
+  Hybrid CDO: mean=2.55125, std=0.0748187
+  Hybrid RSO: mean=0.417158, std=0.0301588
+  Hybrid IBP: mean=0.353249, std=0.0294304
+
+Benchmark: Griewank
+  IICO: mean=0, std=0
+  Hybrid TFO: mean=1.48885, std=0.0191269
+  Hybrid CDO: mean=1.84348, std=0.161987

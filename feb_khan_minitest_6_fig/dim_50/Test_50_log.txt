@@ -1,0 +1,43 @@
+Test 50 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  IICO: mean=4.44089e-16, std=0
+  Hybrid Reformed: mean=0.00130319, std=0.000271029
+  Hybrid BDT-OPF: mean=1.84861, std=0.466369
+
+Benchmark: Griewank
+  IICO: mean=0, std=0
+  Hybrid Reformed: mean=7.2302e-08, std=3.59459e-08
+  Hybrid BDT-OPF: mean=0.135837, std=0.0256966
+
+Benchmark: Rastrigin
+  IICO: mean=0, std=0
+  Hybrid Reformed: mean=0.000180778, std=3.2267e-05
+  Hybrid BDT-OPF: mean=15.5428, std=2.53073
+
+Benchmark: Shubert
+  IICO: mean=0, std=0
+  Hybrid Reformed: mean=2.40674, std=2.40673
+  Hybrid BDT-OPF: mean=0.373684, std=0.261397
+
+Benchmark: Eggholder
+  IICO: mean=0, std=0
+  Hybrid Reformed: mean=1.77144e-65, std=1.77114e-65
+  Hybrid BDT-OPF: mean=2.40243e-169, std=0
+
+Benchmark: Holdertable
+  IICO: mean=-19.2085, std=1.82701e-06
+  Hybrid Reformed: mean=-19.2085, std=6.35624e-08
+  Hybrid BDT-OPF: mean=-19.2085, std=4.61853e-14
+
+Benchmark: Schaffer 01
+  IICO: mean=0, std=0
+  Hybrid Reformed: mean=0, std=0
+  Hybrid BDT-OPF: mean=0, std=0
+
+Benchmark: Schaffer 02
+  IICO: mean=0, std=0
+  Hybrid Reformed: mean=0, std=0
+  Hybrid BDT-OPF: mean=0, std=0
+

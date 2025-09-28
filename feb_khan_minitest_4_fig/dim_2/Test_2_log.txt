@@ -1,0 +1,59 @@
+Test 2 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  IICO: mean=4.44089e-16, std=0
+  Hybrid IBP: mean=4.43138e-05, std=0
+  Hybrid IBP-HP: mean=13.1968, std=0
+  Hybrid IBP-IP: mean=0.00141815, std=0
+  Hybrid IBP-HPIP: mean=0.00202865, std=0
+
+Benchmark: Griewank
+  IICO: mean=0, std=0
+  Hybrid IBP: mean=1.17061e-07, std=0
+  Hybrid IBP-HP: mean=5.80139e-05, std=0
+  Hybrid IBP-IP: mean=3.48783e-05, std=0
+  Hybrid IBP-HPIP: mean=0.000270564, std=0
+
+Benchmark: Rastrigin
+  IICO: mean=0, std=0
+  Hybrid IBP: mean=1.70824e-07, std=0
+  Hybrid IBP-HP: mean=7.95967, std=0
+  Hybrid IBP-IP: mean=2.36382e-06, std=0
+  Hybrid IBP-HPIP: mean=6.78691e-06, std=0
+
+Benchmark: Shubert
+  IICO: mean=0, std=0
+  Hybrid IBP: mean=2.01853e-10, std=0
+  Hybrid IBP-HP: mean=0.00971591, std=0
+  Hybrid IBP-IP: mean=1.1587e-08, std=0
+  Hybrid IBP-HPIP: mean=0.00971591, std=0
+
+Benchmark: Eggholder
+  IICO: mean=0, std=0
+  Hybrid IBP: mean=1.07842e-08, std=0
+  Hybrid IBP-HP: mean=11.861, std=0
+  Hybrid IBP-IP: mean=3.9994e-07, std=0
+  Hybrid IBP-HPIP: mean=1.10343e-06, std=0
+
+Benchmark: Holdertable
+  IICO: mean=-19.2085, std=0
+  Hybrid IBP: mean=-19.2085, std=0
+  Hybrid IBP-HP: mean=-11.0696, std=0
+  Hybrid IBP-IP: mean=-19.2085, std=0
+  Hybrid IBP-HPIP: mean=-19.2085, std=0
+
+Benchmark: Schaffer 01
+  IICO: mean=0, std=0
+  Hybrid IBP: mean=8.46878e-13, std=0
+  Hybrid IBP-HP: mean=0.0242158, std=0
+  Hybrid IBP-IP: mean=1.25031e-10, std=0
+  Hybrid IBP-HPIP: mean=1.53426e-11, std=0
+
+Benchmark: Schaffer 02
+  IICO: mean=0, std=0
+  Hybrid IBP: mean=3.45013e-11, std=0
+  Hybrid IBP-HP: mean=1.05485e-08, std=0
+  Hybrid IBP-IP: mean=1.11942e-08, std=0
+  Hybrid IBP-HPIP: mean=2.73027e-10, std=0
+

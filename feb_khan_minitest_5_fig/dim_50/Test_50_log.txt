@@ -1,0 +1,43 @@
+Test 50 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  IICO: mean=4.44089e-16, std=0
+  Hybrid IBP: mean=0.387432, std=0
+  Hybrid IBP-Sodium: mean=4.26485, std=0
+
+Benchmark: Griewank
+  IICO: mean=0, std=0
+  Hybrid IBP: mean=0.821732, std=0
+  Hybrid IBP-Sodium: mean=3.11879, std=0
+
+Benchmark: Rastrigin
+  IICO: mean=0, std=0
+  Hybrid IBP: mean=1.00248, std=0
+  Hybrid IBP-Sodium: mean=123.458, std=0
+
+Benchmark: Shubert
+  IICO: mean=0, std=0
+  Hybrid IBP: mean=0.0188069, std=0
+  Hybrid IBP-Sodium: mean=3.55157, std=0
+
+Benchmark: Eggholder
+  IICO: mean=0, std=0
+  Hybrid IBP: mean=1.00219e-08, std=0
+  Hybrid IBP-Sodium: mean=9.03792e-06, std=0
+
+Benchmark: Holdertable
+  IICO: mean=-19.2085, std=0
+  Hybrid IBP: mean=-19.2085, std=0
+  Hybrid IBP-Sodium: mean=-19.2085, std=0
+
+Benchmark: Schaffer 01
+  IICO: mean=0, std=0
+  Hybrid IBP: mean=0, std=0
+  Hybrid IBP-Sodium: mean=0, std=0
+
+Benchmark: Schaffer 02
+  IICO: mean=0, std=0
+  Hybrid IBP: mean=0, std=0
+  Hybrid IBP-Sodium: mean=0, std=0
+

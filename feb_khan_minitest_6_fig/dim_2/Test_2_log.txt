@@ -1,0 +1,24 @@
+Test 2 - FCSA Benchmark Results (1 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  IICO: mean=4.44e-16, std=0.00e+00
+  Hybrid sbm: mean=4.44e-16, std=0.00e+00
+  Hybrid DE: mean=4.44e-16, std=0.00e+00
+
+Benchmark: Griewank
+  IICO: mean=0.00e+00, std=0.00e+00
+  Hybrid sbm: mean=0.00e+00, std=0.00e+00
+  Hybrid DE: mean=0.00e+00, std=0.00e+00
+
+Benchmark: Rastrigin
+  IICO: mean=0.00e+00, std=0.00e+00
+  Hybrid sbm: mean=0.00e+00, std=0.00e+00
+  Hybrid DE: mean=0.00e+00, std=0.00e+00
+
+Benchmark: Shubert
+  IICO: mean=0.00e+00, std=0.00e+00
+  Hybrid sbm: mean=0.00e+00, std=0.00e+00
+  Hybrid DE: mean=0.00e+00, std=0.00e+00
+
+Benchmark: Eggholder

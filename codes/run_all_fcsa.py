@@ -166,14 +166,14 @@ def run_hybrid_ibp(obj, bounds, seed=None):
 algorithms = [
     # ("FCSA", run_fcsa),
     # ("FCSA-Levy", run_fcsa_levy),
-    ("Hybrid Original", run_hybrid_original),
+    # ("Hybrid Original", run_hybrid_original),
     # ("Hybrid Original + DE", run_hybrid_original_de),
     # ("Adaptive Pruning", run_hybrid_pruning_adaptive),
     # ("Hybrid Pruning+DE", run_hybrid_pruning_de_version),
     # ("Adaptive Pruning+DE", run_hybrid_pruning_de_version_adaptive),
     # ("FCSA+SP", run_fcsa_sp),
     # ("FCSA+SP+QMC", run_fcsa_sp_qmc),
-    # ("IICO", run_iico),
+    ("IICO", run_iico),
     # ("HybridCSA-Pruning", run_hybrid_pruning),
     # ("HybridCSA-Sobol", run_hybrid_pruning_sobol),
     # ("HybridCSA++ (Memory Adaptive)", run_hybrid_memory_adaptive),
@@ -205,11 +205,11 @@ def run_all_dims():
     import os
     import csv
     # dims = [2, 50, 100]
-    dims = [2,50, 100]
-    n_runs = 100
+    dims = [100]
+    n_runs = 2
     for dim in dims:
         # Folder and log for this dimension
-        fig_dir = os.path.join(os.path.dirname(__file__), f'../test_3_fig/dim_{dim}')
+        fig_dir = os.path.join(os.path.dirname(__file__), f'../feb_khan_minitest_3_fig/dim_{dim}')
         os.makedirs(fig_dir, exist_ok=True)
         log_file = os.path.join(fig_dir, f'Test_{dim}_log.txt')
         with open(log_file, "w") as f:

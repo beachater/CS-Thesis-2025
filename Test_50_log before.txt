@@ -1,0 +1,35 @@
+Test 50 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  Hybrid Reformed: mean=0.00103216, std=0
+  Hybrid Reformed IDp: mean=0.00133017, std=0
+
+Benchmark: Griewank
+  Hybrid Reformed: mean=1.08248e-07, std=0
+  Hybrid Reformed IDp: mean=2.1966e-07, std=0
+
+Benchmark: Rastrigin
+  Hybrid Reformed: mean=0.000148511, std=0
+  Hybrid Reformed IDp: mean=0.000255356, std=0
+
+Benchmark: Shubert
+  Hybrid Reformed: mean=4.81347, std=0
+  Hybrid Reformed IDp: mean=5.0481, std=0
+
+Benchmark: Eggholder
+  Hybrid Reformed: mean=2.92959e-69, std=0
+  Hybrid Reformed IDp: mean=5.33794e-72, std=0
+
+Benchmark: Holdertable
+  Hybrid Reformed: mean=-19.2085, std=0
+  Hybrid Reformed IDp: mean=-19.2085, std=0
+
+Benchmark: Schaffer 01
+  Hybrid Reformed: mean=0, std=0
+  Hybrid Reformed IDp: mean=0, std=0
+
+Benchmark: Schaffer 02
+  Hybrid Reformed: mean=0, std=0
+  Hybrid Reformed IDp: mean=0, std=0
+

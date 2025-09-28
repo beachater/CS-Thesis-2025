@@ -1,0 +1,59 @@
+Test 2 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  IICO: mean=4.44089e-16, std=0
+  Hybrid TFO: mean=0.00185086, std=0.000631425
+  Hybrid CDO: mean=0.079243, std=0.0346776
+  Hybrid RSO: mean=0.00138338, std=0.00069484
+  Hybrid IBP: mean=0.000206398, std=0.000133373
+
+Benchmark: Griewank
+  IICO: mean=0, std=0
+  Hybrid TFO: mean=4.27832e-05, std=3.25776e-05
+  Hybrid CDO: mean=0.016575, std=0.0133277
+  Hybrid RSO: mean=2.82636e-05, std=2.06684e-05
+  Hybrid IBP: mean=1.34379e-06, std=1.53214e-06
+
+Benchmark: Rastrigin
+  IICO: mean=0, std=0
+  Hybrid TFO: mean=1.90575e-06, std=1.47252e-06
+  Hybrid CDO: mean=0.00136172, std=0.0017272
+  Hybrid RSO: mean=1.95225e-06, std=1.52658e-06
+  Hybrid IBP: mean=9.13521e-08, std=8.29261e-08
+
+Benchmark: Shubert
+  IICO: mean=0, std=0
+  Hybrid TFO: mean=2.70593e-08, std=1.85608e-08
+  Hybrid CDO: mean=6.31075e-05, std=8.97931e-05
+  Hybrid RSO: mean=2.86687e-08, std=2.01054e-08
+  Hybrid IBP: mean=6.84031e-10, std=7.09573e-10
+
+Benchmark: Eggholder
+  IICO: mean=0, std=0
+  Hybrid TFO: mean=2.15965e-07, std=1.6575e-07
+  Hybrid CDO: mean=0.000255835, std=0.000301713
+  Hybrid RSO: mean=2.35505e-07, std=1.98168e-07
+  Hybrid IBP: mean=4.79505e-09, std=3.48118e-09
+
+Benchmark: Holdertable
+  IICO: mean=-19.2082, std=0.000966825
+  Hybrid TFO: mean=-19.2085, std=2.1827e-05
+  Hybrid CDO: mean=-19.2021, std=0.00404559
+  Hybrid RSO: mean=-19.2085, std=2.14288e-05
+  Hybrid IBP: mean=-19.2085, std=8.04158e-07
+
+Benchmark: Schaffer 01
+  IICO: mean=0, std=0
+  Hybrid TFO: mean=3.25806e-11, std=2.70139e-11
+  Hybrid CDO: mean=3.57211e-08, std=3.07798e-08
+  Hybrid RSO: mean=1.52376e-11, std=1.10745e-11
+  Hybrid IBP: mean=4.4682e-13, std=3.84112e-13
+
+Benchmark: Schaffer 02
+  IICO: mean=0, std=0
+  Hybrid TFO: mean=3.87546e-09, std=2.67885e-09
+  Hybrid CDO: mean=3.41756e-06, std=4.4907e-06
+  Hybrid RSO: mean=3.8274e-09, std=2.90675e-09
+  Hybrid IBP: mean=1.32061e-10, std=1.43748e-10
+
