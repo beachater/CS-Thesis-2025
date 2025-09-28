@@ -511,11 +511,11 @@ class HybridCSAOriginal_sbm:
                 self._F_stats["sbm_current_rand"][2] / max(1, self._F_stats["sbm_current_rand"][3])
             )
 
-            if self.verbose and (gen % self.log_every == 0 or gen == 1 or gen == self.max_gens):
-                print(
-                    f"[gen {gen}] best={best_val:.3e}  t={t_used:.3f}  "
-                    f"noise={noise_scale:.4g}  stagn={stagnation}  acc={acc:.2f}"
-                )
+            # if self.verbose and (gen % self.log_every == 0 or gen == 1 or gen == self.max_gens):
+            #     print(
+            #         f"[gen {gen}] best={best_val:.3e}  t={t_used:.3f}  "
+            #         f"noise={noise_scale:.4g}  stagn={stagnation}  acc={acc:.2f}"
+            #     )
 
         info = {
             "generations": self.max_gens,

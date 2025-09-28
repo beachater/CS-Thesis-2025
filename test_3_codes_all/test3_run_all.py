@@ -9,6 +9,7 @@ from IICO import iico as IICO_func
 from reformed_hybrid import HybridRolePartitioned
 from hybrid_top import HybridCSAOriginal_sbm
 from fscsa import FCSA
+from nova import NOVAPlus
 
 
 
@@ -62,11 +63,17 @@ def run_hybrid_sbm(obj, bounds, seed=None):
     return history, diag  # <-- return both
 
 
+def run_novaplus(obj, bounds, seed=None):
+    opt = NOVAPlus(obj, bounds, seed=seed)
+    x_best, f_best, history = opt.minimize()
+    return np.array(history)
+
 algorithms = [
     ("FCSA", run_fcsa), 
     ("IICO", run_iico),
     ("Hybrid Reformed", run_hybrid_reformed),
     ("Hybrid sbm", run_hybrid_sbm),
+    ("NOVAPlus", run_novaplus),
 
 ]
 
@@ -92,9 +99,9 @@ def run_all_dims():
     import os
     import csv
 
-    # dims = [2, 50, 100]
-    dims = [2]
-    n_runs = 1
+    dims = [2, 50, 100]
+    # dims = [2]
+    n_runs = 100
 
     for dim in dims:
         # Folder and log for this dimension

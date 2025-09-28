@@ -48,7 +48,7 @@ def parse_benchmark_results(file_path):
     
     return results
 
-def create_excel_file(results, output_file='FCSA_Benchmark_Test3_Dim2_Results.xlsx'):
+def create_excel_file(results, output_file='FCSA_Benchmark_Test3_Dim2_Run1_Results.xlsx'):
     """Create Excel file with the specified format."""
     
     # Get all unique algorithms and benchmarks
@@ -138,7 +138,7 @@ def create_excel_file(results, output_file='FCSA_Benchmark_Test3_Dim2_Results.xl
 def main():
     """Main function to run the conversion."""
     # Input file path - change this to your text file path
-    input_file = 'feb_khan_minitest_3_fig\dim_2\Test_2_log.txt'  # Change this to your actual file path
+    input_file = 'test_3_fig\dim_2\Test_2_log.txt'  # Change this to your actual file path
 
     
     try:

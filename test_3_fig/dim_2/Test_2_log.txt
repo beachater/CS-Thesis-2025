@@ -1,0 +1,59 @@
+Test 2 - FCSA Benchmark Results (1 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Ackley
+  FCSA: mean=1.29e-01, std=0.00e+00
+  IICO: mean=4.44e-16, std=0.00e+00
+  Hybrid Reformed: mean=7.58e-04, std=0.00e+00
+  Hybrid sbm: mean=4.44e-16, std=0.00e+00
+  NOVAPlus: mean=4.44e-16, std=0.00e+00
+
+Benchmark: Griewank
+  FCSA: mean=1.08e-01, std=0.00e+00
+  IICO: mean=0.00e+00, std=0.00e+00
+  Hybrid Reformed: mean=2.95e-09, std=0.00e+00
+  Hybrid sbm: mean=0.00e+00, std=0.00e+00
+  NOVAPlus: mean=0.00e+00, std=0.00e+00
+
+Benchmark: Rastrigin
+  FCSA: mean=2.45e-02, std=0.00e+00
+  IICO: mean=0.00e+00, std=0.00e+00
+  Hybrid Reformed: mean=3.11e-06, std=0.00e+00
+  Hybrid sbm: mean=0.00e+00, std=0.00e+00
+  NOVAPlus: mean=0.00e+00, std=0.00e+00
+
+Benchmark: Shubert
+  FCSA: mean=1.61e-04, std=0.00e+00
+  IICO: mean=0.00e+00, std=0.00e+00
+  Hybrid Reformed: mean=6.57e-09, std=0.00e+00
+  Hybrid sbm: mean=0.00e+00, std=0.00e+00
+  NOVAPlus: mean=0.00e+00, std=0.00e+00
+
+Benchmark: Eggholder
+  FCSA: mean=6.79e-04, std=0.00e+00
+  IICO: mean=0.00e+00, std=0.00e+00
+  Hybrid Reformed: mean=4.06e-08, std=0.00e+00
+  Hybrid sbm: mean=2.29e-35, std=0.00e+00
+  NOVAPlus: mean=0.00e+00, std=0.00e+00
+
+Benchmark: Holdertable
+  FCSA: mean=-1.92e+01, std=0.00e+00
+  IICO: mean=-1.92e+01, std=0.00e+00
+  Hybrid Reformed: mean=-1.92e+01, std=0.00e+00
+  Hybrid sbm: mean=-1.92e+01, std=0.00e+00
+  NOVAPlus: mean=-1.92e+01, std=0.00e+00
+
+Benchmark: Schaffer 01
+  FCSA: mean=6.43e-07, std=0.00e+00
+  IICO: mean=0.00e+00, std=0.00e+00
+  Hybrid Reformed: mean=9.00e-13, std=0.00e+00
+  Hybrid sbm: mean=0.00e+00, std=0.00e+00
+  NOVAPlus: mean=0.00e+00, std=0.00e+00
+
+Benchmark: Schaffer 02
+  FCSA: mean=1.20e-04, std=0.00e+00
+  IICO: mean=0.00e+00, std=0.00e+00
+  Hybrid Reformed: mean=5.84e-12, std=0.00e+00
+  Hybrid sbm: mean=0.00e+00, std=0.00e+00
+  NOVAPlus: mean=0.00e+00, std=0.00e+00
+
