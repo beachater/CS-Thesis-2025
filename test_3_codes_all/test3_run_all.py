@@ -10,6 +10,8 @@ from reformed_hybrid import HybridRolePartitioned
 from hybrid_top import HybridCSAOriginal_sbm
 from fscsa import FCSA
 from nova import NOVAPlus
+from FCSA_IICO_Hybrid_original import HybridCSAOriginal
+
 
 
 
@@ -49,6 +51,14 @@ def run_fcsa(obj, bounds, seed=None):
     else:
         return np.array([f_best])
 
+def run_hybrid_original(obj, bounds, seed=None):
+    opt = HybridCSAOriginal(obj, bounds, seed=seed)
+    x_best, f_best, info = opt.minimize()
+    if 'history' in info:
+        return np.array(info['history'])
+    else:
+        return np.array([f_best])
+    
 def run_hybrid_reformed(obj, bounds, seed=None):
     opt = HybridRolePartitioned(obj, bounds, seed=seed)
     x_best, f_best, info = opt.minimize()
@@ -69,11 +79,12 @@ def run_novaplus(obj, bounds, seed=None):
     return np.array(history)
 
 algorithms = [
-    ("FCSA", run_fcsa), 
-    ("IICO", run_iico),
-    ("Hybrid Reformed", run_hybrid_reformed),
-    ("Hybrid sbm", run_hybrid_sbm),
-    ("NOVAPlus", run_novaplus),
+    # ("FCSA", run_fcsa), 
+    # ("IICO", run_iico),
+    ("Hybrid Original", run_hybrid_original),
+    # ("Hybrid Reformed", run_hybrid_reformed),
+    # ("Hybrid sbm", run_hybrid_sbm),
+    # ("NOVAPlus", run_novaplus),
 
 ]
 
