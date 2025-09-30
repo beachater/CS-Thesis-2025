@@ -1,6 +1,0 @@
-Test 6 - FCSA Benchmark Results (1 runs per algorithm)
-
-NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
-Benchmark: Ackley
-  Hybrid Reformed: mean=1.22e-03, std=0.00e+00
-

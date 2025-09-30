@@ -295,8 +295,9 @@ class HybridRolePartitioned:
         for d in range(D):
             x_d = X[:, d]
             data_range = np.max(x_d) - np.min(x_d)
-            if data_range == 0.0:
-                ent_d = 0.0  # No diversity in this dimension
+            # Robust: treat very small range as no diversity
+            if data_range < 1e-8:
+                ent_d = 0.0  # No diversity in this dimension (or range too small for bins)
             else:
                 hist, _ = np.histogram(x_d, bins=bins, density=True)
                 p = hist + 1e-12

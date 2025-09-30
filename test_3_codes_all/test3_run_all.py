@@ -21,14 +21,15 @@ from FCSA_IICO_Hybrid_original import HybridCSAOriginal
 
 # List of benchmark function names and their canonical names in benchmark.py
 benchmarks = [
+    ("Schaffer 01", "ModifiedSchaffer_01"),
+    ("Schaffer 02", "ModifiedSchaffer_02"),
     ("Ackley", "Ackley"),
     ("Griewank", "Griewank"),
     ("Rastrigin", "Rastrigin"),
     ("Shubert", "Shubert_06"),
     ("Eggholder", "Eggcrate"),  # Eggholder is not present, using Eggcrate as a placeholder
     ("Holdertable", "HolderTable"),
-    ("Schaffer 01", "ModifiedSchaffer_01"),
-    ("Schaffer 02", "ModifiedSchaffer_02"),
+    
 ]
 
 
@@ -79,13 +80,12 @@ def run_novaplus(obj, bounds, seed=None):
     return np.array(history)
 
 algorithms = [
-    ("FCSA", run_fcsa), 
-    ("IICO", run_iico),
-    ("Hybrid Original", run_hybrid_original),
     ("Hybrid Reformed", run_hybrid_reformed),
     ("Hybrid sbm", run_hybrid_sbm),
     ("NOVAPlus", run_novaplus),
-
+    ("FCSA", run_fcsa), 
+    ("IICO", run_iico),
+    ("Hybrid Original", run_hybrid_original),
 ]
 
 
@@ -110,9 +110,9 @@ def run_all_dims():
     import os
     import csv
 
-    dims = [2,50, 100]
+    dims = [2, 50, 100]
     # dims = [2]
-    n_runs = 100
+    n_runs = 3
 
     for dim in dims:
         # Folder and log for this dimension
