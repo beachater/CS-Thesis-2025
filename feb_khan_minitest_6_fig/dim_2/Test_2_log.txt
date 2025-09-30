@@ -22,3 +22,22 @@ Benchmark: Shubert
   Hybrid DE: mean=0.00e+00, std=0.00e+00
 
 Benchmark: Eggholder
+  IICO: mean=0.00e+00, std=0.00e+00
+  Hybrid sbm: mean=2.29e-35, std=0.00e+00
+  Hybrid DE: mean=0.00e+00, std=0.00e+00
+
+Benchmark: Holdertable
+  IICO: mean=-1.92e+01, std=0.00e+00
+  Hybrid sbm: mean=-1.92e+01, std=0.00e+00
+  Hybrid DE: mean=-1.92e+01, std=0.00e+00
+
+Benchmark: Schaffer 01
+  IICO: mean=0.00e+00, std=0.00e+00
+  Hybrid sbm: mean=0.00e+00, std=0.00e+00
+  Hybrid DE: mean=0.00e+00, std=0.00e+00
+
+Benchmark: Schaffer 02
+  IICO: mean=0.00e+00, std=0.00e+00
+  Hybrid sbm: mean=0.00e+00, std=0.00e+00
+  Hybrid DE: mean=0.00e+00, std=0.00e+00
+

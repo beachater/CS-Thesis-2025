@@ -139,8 +139,8 @@ def run_all_dims():
     import os
     import csv
 
-    # dims = [2, 50, 100]
-    dims = [2]
+    dims = [2, 50, 100]
+    #dims = [2]
     n_runs = 1
 
     for dim in dims:
