@@ -293,10 +293,15 @@ class HybridRolePartitioned:
         D = X.shape[1]
         ent = 0.0
         for d in range(D):
-            hist, _ = np.histogram(X[:, d], bins=bins, density=True)
-            p = hist + 1e-12
-            p = p / p.sum()
-            ent_d = -np.sum(p * np.log(p + 1e-12))
+            x_d = X[:, d]
+            data_range = np.max(x_d) - np.min(x_d)
+            if data_range == 0.0:
+                ent_d = 0.0  # No diversity in this dimension
+            else:
+                hist, _ = np.histogram(x_d, bins=bins, density=True)
+                p = hist + 1e-12
+                p = p / p.sum()
+                ent_d = -np.sum(p * np.log(p + 1e-12))
             ent += ent_d
         ent /= float(D)
         # normalize by log(bins)

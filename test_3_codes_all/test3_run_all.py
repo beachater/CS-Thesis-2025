@@ -79,12 +79,12 @@ def run_novaplus(obj, bounds, seed=None):
     return np.array(history)
 
 algorithms = [
-    # ("FCSA", run_fcsa), 
-    # ("IICO", run_iico),
+    ("FCSA", run_fcsa), 
+    ("IICO", run_iico),
     ("Hybrid Original", run_hybrid_original),
-    # ("Hybrid Reformed", run_hybrid_reformed),
-    # ("Hybrid sbm", run_hybrid_sbm),
-    # ("NOVAPlus", run_novaplus),
+    ("Hybrid Reformed", run_hybrid_reformed),
+    ("Hybrid sbm", run_hybrid_sbm),
+    ("NOVAPlus", run_novaplus),
 
 ]
 
@@ -110,7 +110,7 @@ def run_all_dims():
     import os
     import csv
 
-    dims = [2, 50, 100]
+    dims = [2,50, 100]
     # dims = [2]
     n_runs = 100
 
@@ -179,7 +179,7 @@ def run_all_dims():
                         for gen in range(len(mean_curve)):
                             row = [gen] + [histories[run][gen] for run in range(n_runs)]
                             writer.writerow(row)
-                    # print(f"    Saved CSV: {csv_path}")
+                    print(f"    Saved CSV: {csv_path}")
 
                     
                 plt.title(f"Convergence Curves: {bench_disp} ({n_runs} runs, dim={dim})")
@@ -191,7 +191,7 @@ def run_all_dims():
                 fig_path = os.path.join(fig_dir, f"convergence_{bench_disp.replace(' ', '_')}_dim{dim}.png")
                 plt.savefig(fig_path)
                 plt.close()
-                # print(f"  Saved plot: {fig_path}")
+                print(f"  Saved plot: {fig_path}")
                 f.write("\n")
 
 if __name__ == "__main__":
