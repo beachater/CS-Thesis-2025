@@ -1,0 +1,83 @@
+Test 2 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Schaffer 01
+
+=== Benchmark: Schaffer 2 | Dimension: 2 ===
+  HybridReformed: mean=5.84e-12, max=5.84e-12, min=5.84e-12
+  TSD: mean=0.00e+00, max=0.00e+00, min=0.00e+00
+
+=== Benchmark: Schaffer 2 | Dimension: 2 ===
+  HybridReformed: No runs completed
+  TSD: No runs completed
+
+=== Benchmark: Schaffer 2 | Dimension: 2 ===
+  HybridReformed: No runs completed
+  TSD: No runs completed
+  HybridFCSA_IICO_TSD: mean=2.40e-12, max=2.40e-12, min=2.40e-12
+  FCSA: mean=1.20e-04, max=1.20e-04, min=1.20e-04
+  IICO: mean=0.00e+00, max=0.00e+00, min=0.00e+00
+  HybridFCSA_IICO_TSD: No runs completed
+
+
+=== Benchmark: Schaffer 4 | Dimension: 2 ===
+  HybridReformed: mean=2.93e-01, max=2.93e-01, min=2.93e-01
+  TSD: mean=2.93e-01, max=2.93e-01, min=2.93e-01
+  HybridFCSA_IICO_TSD: mean=2.93e-01, max=2.93e-01, min=2.93e-01
+  FCSA: mean=2.94e-01, max=2.94e-01, min=2.94e-01
+  IICO: mean=2.93e-01, max=2.93e-01, min=2.93e-01
+  HybridFCSA_IICO_TSD: No runs completed
+
+
+=== Benchmark: Ackley | Dimension: 2 ===
+  HybridReformed: mean=7.58e-04, max=7.58e-04, min=7.58e-04
+  TSD: mean=4.44e-16, max=4.44e-16, min=4.44e-16
+  HybridFCSA_IICO_TSD: mean=1.18e-04, max=1.18e-04, min=1.18e-04
+
+=== Benchmark: Schaffer 2 | Dimension: 2 ===
+  HybridReformed: No runs completed
+  TSD: No runs completed
+  HybridFCSA_IICO_TSD: No runs completed
+  FCSA: No runs completed
+  IICO: No runs completed
+  HybridFCSA_IICO_TSD: No runs completed
+
+
+=== Benchmark: Schaffer 4 | Dimension: 2 ===
+  HybridReformed: No runs completed
+  TSD: No runs completed
+  HybridFCSA_IICO_TSD: No runs completed
+  FCSA: No runs completed
+  IICO: No runs completed
+  HybridFCSA_IICO_TSD: No runs completed
+
+
+=== Benchmark: Ackley | Dimension: 2 ===
+  HybridReformed: No runs completed
+  TSD: No runs completed
+  HybridFCSA_IICO_TSD: No runs completed
+  FCSA: mean=1.29e-01, max=1.29e-01, min=1.29e-01
+
+=== Benchmark: Schaffer 2 | Dimension: 2 ===
+  HybridReformed: No runs completed
+  TSD: No runs completed
+  HybridFCSA_IICO_TSD: No runs completed
+  FCSA: No runs completed
+  IICO: No runs completed
+  HybridFCSA_IICO_TSD: No runs completed
+
+
+=== Benchmark: Schaffer 4 | Dimension: 2 ===
+  HybridReformed: No runs completed
+  TSD: No runs completed
+  HybridFCSA_IICO_TSD: No runs completed
+  FCSA: No runs completed
+  IICO: No runs completed
+  HybridFCSA_IICO_TSD: No runs completed
+
+
+=== Benchmark: Ackley | Dimension: 2 ===
+  HybridReformed: No runs completed
+  TSD: No runs completed
+  HybridFCSA_IICO_TSD: No runs completed
+  FCSA: No runs completed

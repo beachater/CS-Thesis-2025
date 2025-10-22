@@ -11,6 +11,13 @@ from hybrid_top import HybridCSAOriginal_sbm
 from fscsa import FCSA
 from nova import NOVAPlus
 from FCSA_IICO_Hybrid_original import HybridCSAOriginal
+from novanew import NOVA_Enhanced
+from tqdm import tqdm
+# from dset import ETFCSA_Lite
+from dest2 import ETFCSA_Lite
+from tsd import ETFCSA_TSD
+
+
 
 
 
@@ -34,17 +41,17 @@ benchmarks = [
 
 
 
-def run_iico(obj, bounds, dim, max_evals, pop_size, bench_func=None, seed=None):
+def run_iico(obj, bounds, dim, max_evals, pop_size, bench_func=None, seed=None, progress=None):
     def iico_obj(x):
         return obj(np.array(x))
     def iico_fun(x):
         y, lb, ub = bench_func(x)
         return y, lb, ub
-    best_fitness_list, gbest, info = IICO_func(iico_fun, max_evals, pop_size, dim, seed=seed)
+    best_fitness_list, gbest, info = IICO_func(iico_fun, max_evals, pop_size, dim, seed=seed, progress=progress)
     return np.array(info['history'])
 
-def run_fcsa(obj, bounds, seed=None):
-    opt = FCSA(obj, bounds, seed=seed)
+def run_fcsa(obj, bounds, seed=None, progress=None):
+    opt = FCSA(obj, bounds, seed=seed, progress=progress)
     x_best, f_best, info = opt.optimize()
     # If info['history'] is available, return it for plotting, else just f_best
     if 'history' in info:
@@ -79,13 +86,39 @@ def run_novaplus(obj, bounds, seed=None):
     x_best, f_best, history = opt.minimize()
     return np.array(history)
 
+def run_novanew(obj, bounds, seed=None, progress=None):
+    opt = NOVA_Enhanced(obj, bounds, seed=seed, progress=progress)
+    x_best, f_best, history = opt.optimize()
+    return np.array(history)
+    
+def run_tsd(obj, bounds, seed=None, progress=None):
+    opt = ETFCSA_TSD(obj, bounds, seed=seed, progress=progress)
+    x_best, f_best, info = opt.optimize()
+    # ETFCSA_TSD.optimize() returns (x_best, f_best, info_dict)
+    history = info.get("history", [f_best]) if isinstance(info, dict) else [f_best]
+    return np.array(history)
+
+
+def run_dest(obj, bounds, seed=None, progress=None):
+    opt = ETFCSA_Lite(obj, bounds, seed=seed, progress=progress)
+    x_best, f_best, info = opt.optimize()
+    # opt.optimize() returns (x_best, f_best, info_dict) where info_dict['history'] is the list
+    # of best fitness values per tick. Ensure we return a proper sized numpy array so
+    # pad_histories can call len() on each history.
+    history = info.get("history", [f_best]) if isinstance(info, dict) else [f_best]
+    return np.array(history)
+
 algorithms = [
-    ("Hybrid Reformed", run_hybrid_reformed),
-    ("Hybrid sbm", run_hybrid_sbm),
-    ("NOVAPlus", run_novaplus),
-    ("FCSA", run_fcsa), 
+    # ("Hybrid Reformed", run_hybrid_reformed),
+    # ("Hybrid sbm", run_hybrid_sbm),
+    # ("NOVAPlus", run_novaplus),
+    # ("NOVANew", run_novanew),
+    # ("DEST", run_dest),
+    ("TSD", run_tsd),
+     ("FCSA", run_fcsa), 
     ("IICO", run_iico),
-    ("Hybrid Original", run_hybrid_original),
+   
+    # ("Hybrid Original", run_hybrid_original),
 ]
 
 
@@ -110,13 +143,13 @@ def run_all_dims():
     import os
     import csv
 
-    dims = [2, 50, 100]
-    # dims = [2]
-    n_runs = 3
+    dims = [100]
+    # dims = [100]
+    n_runs = 1
 
     for dim in dims:
         # Folder and log for this dimension
-        fig_dir = os.path.join(os.path.dirname(__file__), f'../test_3_fig/dim_{dim}')
+        fig_dir = os.path.join(os.path.dirname(__file__), f'../new_test/dim_{dim}')
         os.makedirs(fig_dir, exist_ok=True)
         log_file = os.path.join(fig_dir, f'Test_{dim}_log.txt')
         with open(log_file, "w") as f:
@@ -142,12 +175,21 @@ def run_all_dims():
                     diags_for_alg_bench = []  # store per-run diagnostics if available
 
                     for run in range(n_runs):
+                        # choose evaluation budget per algorithm (fallback to 350k)
+                        eval_budget = 350_000
                         if alg_name == "IICO":
-                            max_evals = 350_000
+                            max_evals = eval_budget
                             pop_size = 60
-                            result = runner(obj, bounds, bench_dim, max_evals, pop_size, func, seed=run)
+                            with tqdm(total=max_evals, desc=f"{alg_name} run {run+1}/{n_runs}", unit='eval', leave=False) as pbar:
+                                result = runner(obj, bounds, bench_dim, max_evals, pop_size, func, seed=run, progress=pbar.update)
                         else:
-                            result = runner(obj, bounds, seed=run)
+                            with tqdm(total=eval_budget, desc=f"{alg_name} run {run+1}/{n_runs}", unit='eval', leave=False) as pbar:
+                                # many algorithms accept a progress callback named 'progress'
+                                try:
+                                    result = runner(obj, bounds, seed=run, progress=pbar.update)
+                                except TypeError:
+                                    # fallback if runner doesn't accept progress
+                                    result = runner(obj, bounds, seed=run)
 
                         # result may be history (np.array) or (history, diag)
                         if isinstance(result, tuple) and len(result) == 2:

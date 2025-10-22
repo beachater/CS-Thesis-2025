@@ -1,0 +1,22 @@
+{
+  "algorithm": "TSD",
+  "benchmark": "Levy",
+  "benchmark_display": "Levy",
+  "dim": 100,
+  "n_runs": 2,
+  "mean_final": 9.55495901938151,
+  "max_final": 9.608946450485016,
+  "min_final": 9.500971588278004,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 9.500971588278004,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 9.608946450485016,
+      "history_len": 1000
+    }
+  ]
+}

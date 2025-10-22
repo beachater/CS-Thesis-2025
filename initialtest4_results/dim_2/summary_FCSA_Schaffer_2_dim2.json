@@ -1,0 +1,22 @@
+{
+  "algorithm": "FCSA",
+  "benchmark": "SchafferN2",
+  "benchmark_display": "Schaffer 2",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": 0.00020126519772908913,
+  "max_final": 0.0002826909539668243,
+  "min_final": 0.00011983944149135395,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 0.00011983944149135395,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 0.0002826909539668243,
+      "history_len": 1000
+    }
+  ]
+}

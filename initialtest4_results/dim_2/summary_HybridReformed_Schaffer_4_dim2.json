@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformed",
+  "benchmark": "SchafferN4",
+  "benchmark_display": "Schaffer 4",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": 0.29258383425098483,
+  "max_final": 0.29258717586045224,
+  "min_final": 0.2925804926415174,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 0.2925804926415174,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 0.29258717586045224,
+      "history_len": 1000
+    }
+  ]
+}

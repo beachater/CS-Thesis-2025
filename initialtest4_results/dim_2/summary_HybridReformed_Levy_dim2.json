@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformed",
+  "benchmark": "Levy",
+  "benchmark_display": "Levy",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": 4.030607771557847e-09,
+  "max_final": 6.209762512037444e-09,
+  "min_final": 1.8514530310782493e-09,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 1.8514530310782493e-09,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 6.209762512037444e-09,
+      "history_len": 1000
+    }
+  ]
+}

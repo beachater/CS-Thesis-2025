@@ -143,6 +143,21 @@ def BentCigar(x, lb=-100., ub=100.):
     return y, lb, ub
 
 
+# def Ackley(x, lb=-32.768, ub=32.768):
+#     """
+#     or Ackley's Path
+#     f(x) = 0, x = (0, ...,0)
+#     """
+#     y = 0.
+#     s1 = 0.
+#     s2 = 0.
+#     for i in range(len(x)):
+#         s1 = s1 + x[i] ** 2
+#         s2 = s2 + np.cos(2 * math.pi * x[i])
+#     if len(x) > 0:
+#         y = -20 * np.exp(-0.2 * np.sqrt(s1 / len(x))) - np.exp(s2 / len(x)) + 20 + np.e
+#     return y, lb, ub
+
 def Ackley(x, lb=-32.768, ub=32.768):
     """
     or Ackley's Path

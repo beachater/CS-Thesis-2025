@@ -1,0 +1,22 @@
+{
+  "algorithm": "TSD",
+  "benchmark": "Schwefel",
+  "benchmark_display": "Schwefel",
+  "dim": 100,
+  "n_runs": 2,
+  "mean_final": 31630.37583849053,
+  "max_final": 31640.18319570815,
+  "min_final": 31620.568481272916,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 31640.18319570815,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 31620.568481272916,
+      "history_len": 1000
+    }
+  ]
+}

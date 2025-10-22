@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformed",
+  "benchmark": "Shubert",
+  "benchmark_display": "Shubert",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": -186.73090799650302,
+  "max_final": -186.73090770415314,
+  "min_final": -186.7309082888529,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": -186.73090770415314,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": -186.7309082888529,
+      "history_len": 1000
+    }
+  ]
+}

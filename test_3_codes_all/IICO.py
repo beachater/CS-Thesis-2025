@@ -17,12 +17,30 @@ from openpyxl import load_workbook
 from benchmark import get_function_by_name
 
 
-def iico(fun, max_FEs, n, dim, max_stagnation=3, seed=None):
+def iico(fun, max_FEs, n, dim, max_stagnation=3, seed=None, progress=None):
+    """IICO optimizer.
+    progress: optional callable that accepts an integer delta of function evaluations
+    and will be called each time the optimizer performs one (or more) evaluations.
+    """
     if seed is not None:
         import random
         import numpy as np
         random.seed(seed)
         np.random.seed(seed)
+    # wrap the provided objective so that every call counts towards progress
+    _orig_fun = fun
+    def _fun_with_progress(x):
+        val = _orig_fun(x)
+        try:
+            if progress:
+                # report one evaluation per call
+                progress(1)
+        except Exception:
+            pass
+        return val
+
+    fun = _fun_with_progress
+
     _, lb, ub = fun([random.random() for _ in range(dim)])
 
     pop = [[0. for _ in range(dim)] for _ in range(n)]

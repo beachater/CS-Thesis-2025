@@ -1,0 +1,22 @@
+{
+  "algorithm": "FCSA",
+  "benchmark": "Rastrigin",
+  "benchmark_display": "Rastrigin",
+  "dim": 100,
+  "n_runs": 2,
+  "mean_final": 757.0664187392562,
+  "max_final": 802.4972154813518,
+  "min_final": 711.6356219971606,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 711.6356219971606,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 802.4972154813518,
+      "history_len": 1000
+    }
+  ]
+}

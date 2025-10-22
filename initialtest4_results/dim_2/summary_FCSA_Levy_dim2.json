@@ -1,0 +1,22 @@
+{
+  "algorithm": "FCSA",
+  "benchmark": "Levy",
+  "benchmark_display": "Levy",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": 4.085234800899583e-05,
+  "max_final": 5.574236882721167e-05,
+  "min_final": 2.5962327190779996e-05,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 2.5962327190779996e-05,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 5.574236882721167e-05,
+      "history_len": 1000
+    }
+  ]
+}

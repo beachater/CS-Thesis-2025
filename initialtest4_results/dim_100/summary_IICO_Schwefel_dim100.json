@@ -1,0 +1,22 @@
+{
+  "algorithm": "IICO",
+  "benchmark": "Schwefel",
+  "benchmark_display": "Schwefel",
+  "dim": 100,
+  "n_runs": 2,
+  "mean_final": 28764.275990917442,
+  "max_final": 29060.88115307287,
+  "min_final": 28467.670828762013,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 29060.88115307287,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 28467.670828762013,
+      "history_len": 1000
+    }
+  ]
+}

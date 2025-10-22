@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformed",
+  "benchmark": "HolderTable",
+  "benchmark_display": "Holdertable",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": -19.20850255446566,
+  "max_final": -19.208502553192655,
+  "min_final": -19.20850255573866,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": -19.208502553192655,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": -19.20850255573866,
+      "history_len": 1000
+    }
+  ]
+}

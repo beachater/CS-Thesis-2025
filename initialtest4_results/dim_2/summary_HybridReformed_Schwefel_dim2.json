@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformed",
+  "benchmark": "Schwefel",
+  "benchmark_display": "Schwefel",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": 2.5467541377111047e-05,
+  "max_final": 2.547174358369375e-05,
+  "min_final": 2.5463339170528343e-05,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 2.5463339170528343e-05,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 2.547174358369375e-05,
+      "history_len": 1000
+    }
+  ]
+}

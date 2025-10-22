@@ -1,0 +1,70 @@
+
+=== Benchmark: Schaffer 2 | Dimension: 2 ===
+  HybridReformed: mean=2.14e-11, max=2.74e-11, min=1.54e-11
+  TSD: mean=0.00e+00, max=0.00e+00, min=0.00e+00
+  FCSA: mean=2.01e-04, max=2.83e-04, min=1.20e-04
+  IICO: mean=0.00e+00, max=0.00e+00, min=0.00e+00
+
+
+=== Benchmark: Schaffer 4 | Dimension: 2 ===
+  HybridReformed: mean=2.93e-01, max=2.93e-01, min=2.93e-01
+  TSD: mean=2.93e-01, max=2.93e-01, min=2.93e-01
+  FCSA: mean=2.94e-01, max=2.94e-01, min=2.93e-01
+  IICO: mean=2.93e-01, max=2.93e-01, min=2.93e-01
+
+
+=== Benchmark: Ackley | Dimension: 2 ===
+  HybridReformed: mean=5.00e-04, max=7.81e-04, min=2.20e-04
+  TSD: mean=4.44e-16, max=4.44e-16, min=4.44e-16
+  FCSA: mean=1.46e-01, max=1.63e-01, min=1.29e-01
+  IICO: mean=4.44e-16, max=4.44e-16, min=4.44e-16
+
+
+=== Benchmark: Griewank | Dimension: 2 ===
+  HybridReformed: mean=2.00e-08, max=2.46e-08, min=1.54e-08
+  TSD: mean=5.55e-17, max=1.11e-16, min=0.00e+00
+  FCSA: mean=8.85e-02, max=1.08e-01, min=6.93e-02
+  IICO: mean=0.00e+00, max=0.00e+00, min=0.00e+00
+
+
+=== Benchmark: Rastrigin | Dimension: 2 ===
+  HybridReformed: mean=8.51e-07, max=1.60e-06, min=9.77e-08
+  TSD: mean=0.00e+00, max=0.00e+00, min=0.00e+00
+  FCSA: mean=1.54e-02, max=2.45e-02, min=6.29e-03
+  IICO: mean=0.00e+00, max=0.00e+00, min=0.00e+00
+
+
+=== Benchmark: Shubert | Dimension: 2 ===
+  HybridReformed: mean=-1.87e+02, max=-1.87e+02, min=-1.87e+02
+  TSD: mean=-1.87e+02, max=-1.87e+02, min=-1.87e+02
+  FCSA: mean=-1.86e+02, max=-1.86e+02, min=-1.86e+02
+  IICO: mean=-1.86e+02, max=-1.85e+02, min=-1.87e+02
+
+
+=== Benchmark: Eggholder | Dimension: 2 ===
+  HybridReformed: mean=-9.60e+02, max=-9.60e+02, min=-9.60e+02
+  TSD: mean=-8.73e+02, max=-7.87e+02, min=-9.60e+02
+  FCSA: mean=-9.60e+02, max=-9.60e+02, min=-9.60e+02
+  IICO: mean=-9.57e+02, max=-9.56e+02, min=-9.57e+02
+
+
+=== Benchmark: Holdertable | Dimension: 2 ===
+  HybridReformed: mean=-1.92e+01, max=-1.92e+01, min=-1.92e+01
+  TSD: mean=-1.92e+01, max=-1.92e+01, min=-1.92e+01
+  FCSA: mean=-1.92e+01, max=-1.92e+01, min=-1.92e+01
+  IICO: mean=-1.92e+01, max=-1.92e+01, min=-1.92e+01
+
+
+=== Benchmark: Schwefel | Dimension: 2 ===
+  HybridReformed: mean=2.55e-05, max=2.55e-05, min=2.55e-05
+  TSD: mean=1.19e+02, max=1.19e+02, min=1.18e+02
+  FCSA: mean=1.37e-02, max=2.44e-02, min=2.94e-03
+  IICO: mean=2.55e-05, max=2.55e-05, min=2.55e-05
+
+
+=== Benchmark: Levy | Dimension: 2 ===
+  HybridReformed: mean=4.03e-09, max=6.21e-09, min=1.85e-09
+  TSD: mean=7.17e-06, max=1.43e-05, min=3.75e-08
+  FCSA: mean=4.09e-05, max=5.57e-05, min=2.60e-05
+  IICO: mean=2.12e-09, max=3.94e-09, min=3.04e-10
+

@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformed",
+  "benchmark": "Griewank",
+  "benchmark_display": "Griewank",
+  "dim": 50,
+  "n_runs": 2,
+  "mean_final": 8.631099416844812e-07,
+  "max_final": 8.936811809467926e-07,
+  "min_final": 8.325387024221698e-07,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 8.936811809467926e-07,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 8.325387024221698e-07,
+      "history_len": 1000
+    }
+  ]
+}

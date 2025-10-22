@@ -1,0 +1,22 @@
+{
+  "algorithm": "TSD",
+  "benchmark": "HolderTable",
+  "benchmark_display": "Holdertable",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": -19.208369395316538,
+  "max_final": -19.208259201362964,
+  "min_final": -19.20847958927011,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": -19.208259201362964,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": -19.20847958927011,
+      "history_len": 1000
+    }
+  ]
+}

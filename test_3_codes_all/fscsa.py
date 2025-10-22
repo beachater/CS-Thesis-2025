@@ -46,6 +46,7 @@ class FCSA:
         max_gens: int = 1000,
         max_evals: int = 350_000,
         seed: int | None = 42,
+        progress: Callable[[int], None] | None = None,
     ):
         self.func = func
         self.bounds = np.array(bounds, dtype=float)
@@ -69,10 +70,17 @@ class FCSA:
         self.history_best: list[tuple[float, np.ndarray]] = []
 
         self.eval_count = 0
+        # optional progress callback that accepts integer delta
+        self._progress_cb = progress
 
     # ------------- evaluation helpers -------------
     def _objective(self, x: np.ndarray) -> float:
         self.eval_count += 1
+        if self._progress_cb:
+            try:
+                self._progress_cb(1)
+            except Exception:
+                pass
         return float(self.func(x))
 
     def _affinity(self, x: np.ndarray) -> float:
@@ -189,3 +197,7 @@ class FCSA:
             "history": history,  # just fitness per generation
             "history_best": self.history_best,  # (fitness, position) tuples
         }
+
+
+
+

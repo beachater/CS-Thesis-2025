@@ -1,0 +1,17 @@
+{
+  "algorithm": "HybridReformed",
+  "benchmark": "Ackley",
+  "benchmark_display": "Ackley",
+  "dim": 2,
+  "n_runs": 1,
+  "mean_final": 0.0007583596767841705,
+  "max_final": 0.0007583596767841705,
+  "min_final": 0.0007583596767841705,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 0.0007583596767841705,
+      "history_len": 1000
+    }
+  ]
+}

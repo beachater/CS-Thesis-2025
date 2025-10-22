@@ -1,0 +1,22 @@
+{
+  "algorithm": "TSD",
+  "benchmark": "Eggholder",
+  "benchmark_display": "Eggholder",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": -873.0504434962605,
+  "max_final": -786.5033842364451,
+  "min_final": -959.597502756076,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": -959.597502756076,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": -786.5033842364451,
+      "history_len": 1000
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+Test 100 - FCSA Benchmark Results (1 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Shubert
+  TSD: mean=2.78e+01, std=0.00e+00
+  FCSA: mean=2.29e+01, std=0.00e+00
+  IICO: mean=0.00e+00, std=0.00e+00
+

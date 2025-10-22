@@ -1,0 +1,22 @@
+{
+  "algorithm": "FCSA",
+  "benchmark": "Ackley",
+  "benchmark_display": "Ackley",
+  "dim": 100,
+  "n_runs": 2,
+  "mean_final": 10.33505697863363,
+  "max_final": 10.614922766126803,
+  "min_final": 10.055191191140457,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 10.614922766126803,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 10.055191191140457,
+      "history_len": 1000
+    }
+  ]
+}

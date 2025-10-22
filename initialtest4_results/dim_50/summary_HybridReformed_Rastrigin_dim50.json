@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformed",
+  "benchmark": "Rastrigin",
+  "benchmark_display": "Rastrigin",
+  "dim": 50,
+  "n_runs": 2,
+  "mean_final": 41.0226715067719,
+  "max_final": 82.0447311017594,
+  "min_final": 0.0006119117844036737,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 0.0006119117844036737,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 82.0447311017594,
+      "history_len": 1000
+    }
+  ]
+}

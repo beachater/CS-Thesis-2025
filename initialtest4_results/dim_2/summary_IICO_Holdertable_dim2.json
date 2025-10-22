@@ -1,0 +1,22 @@
+{
+  "algorithm": "IICO",
+  "benchmark": "HolderTable",
+  "benchmark_display": "Holdertable",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": -19.208501241399656,
+  "max_final": -19.20849991491626,
+  "min_final": -19.208502567883052,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": -19.208502567883052,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": -19.20849991491626,
+      "history_len": 1000
+    }
+  ]
+}

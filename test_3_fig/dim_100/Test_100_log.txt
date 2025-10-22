@@ -1,0 +1,6 @@
+Test 100 - FCSA Benchmark Results (100 runs per algorithm)
+
+NOTE: IICO and HybridCSA require matplotlib, openpyxl, scipy, numpy.
+Benchmark: Rastrigin
+  Hybrid Reformed: mean=2.45e-04, std=1.22e-04
+  Hybrid sbm: mean=2.66e-07, std=6.56e-08
