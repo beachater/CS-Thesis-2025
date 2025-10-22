@@ -17,6 +17,8 @@ from test4_fscsa import FCSA
 from tsd import ETFCSA_TSD
 from test4_reformed_hybrid_iico_spark import HybridFCSA_IICO
 
+from test4_reformed_hybrid import HybridRolePartitionedOriginal
+
 
 
 # List of benchmark function names and their canonical names in benchmark.py
@@ -116,9 +118,31 @@ def run_hybrid_reformed_spark(obj, bounds, dim, max_evals, seed=None, progress=N
     x_best, f_best, info = opt.minimize()
     return np.array(info.get("history", [f_best]))
 
+
+def run_hybrid_reformed(obj, bounds, dim, max_evals, progress=None, seed=None, bench_func=None):
+    # Try to pass max_evals and max_gens if the hybrid supports them
+    try:
+        opt = HybridRolePartitionedOriginal(
+            obj,
+            bounds,
+            N=DEFAULT_POP,
+            n_select=DEFAULT_N_SELECT,
+            n_clones=DEFAULT_N_CLONES,
+            a_frac=DEFAULT_A_FRAC,
+            r=DEFAULT_R,
+            seed=seed,
+            max_gens=DEFAULT_MAX_GENS,
+            max_evals=int(max_evals),
+        )
+    except TypeError:
+        opt = HybridRolePartitionedOriginal(obj, bounds, seed=seed)
+    x_best, f_best, info = opt.minimize()
+    return np.array(info.get("history", [f_best]))
+
 algorithms = [
 
-    ("HybridReformed", run_hybrid_reformed_spark),
+    ("HybridReformed", run_hybrid_reformed),
+    ("HybridBase", run_hybrid_reformed_spark),
     ("TSD", run_tsd),
     ("FCSA", run_fcsa), 
     ("IICO", run_iico),
@@ -222,217 +246,217 @@ def format_eta(seconds):
     return f"{s}s"
 
 
-def run_all_dims():
-    import matplotlib.pyplot as plt
-    import os
-    import csv
+# def run_all_dims():
+#     import matplotlib.pyplot as plt
+#     import os
+#     import csv
 
-    # Define benchmark compatibility by dimension
-    dim_support = {
-        "SchafferN2": [2],
-        "SchafferN4": [2],
-        "Ackley": [2, 50, 100],
-        "Griewank": [2, 50, 100],
-        "Rastrigin": [2, 50, 100],
-        "Shubert": [2],
-        "Eggholder": [2],
-        "HolderTable": [2],
-        "Levy": [2, 50, 100],
-        "Schwefel": [2, 50, 100],
-    }
+#     # Define benchmark compatibility by dimension
+#     dim_support = {
+#         "SchafferN2": [2],
+#         "SchafferN4": [2],
+#         "Ackley": [2, 50, 100],
+#         "Griewank": [2, 50, 100],
+#         "Rastrigin": [2, 50, 100],
+#         "Shubert": [2],
+#         "Eggholder": [2],
+#         "HolderTable": [2],
+#         "Levy": [2, 50, 100],
+#         "Schwefel": [2, 50, 100],
+#     }
 
-    # checkpoint file to resume interrupted experiments
-    checkpoint_file = os.path.join(os.path.dirname(__file__), '../test4_checkpoint_results/experiment_checkpoint.json')
-    checkpoint = load_checkpoint(checkpoint_file) or {}
+#     # checkpoint file to resume interrupted experiments
+#     checkpoint_file = os.path.join(os.path.dirname(__file__), '../test4_checkpoint_results/experiment_checkpoint.json')
+#     checkpoint = load_checkpoint(checkpoint_file) or {}
 
-    for bench_disp, bench_name in benchmarks:
-        supported_dims = dim_support.get(bench_name, [2])  # default: only 2D
-        for dim in supported_dims:
-            fig_dir = os.path.join(os.path.dirname(__file__), f'../test4_fig_results/dim_{dim}')
-            os.makedirs(fig_dir, exist_ok=True)
-            log_file = os.path.join(fig_dir, f'Test_{dim}_log.txt')
+#     for bench_disp, bench_name in benchmarks:
+#         supported_dims = dim_support.get(bench_name, [2])  # default: only 2D
+#         for dim in supported_dims:
+#             fig_dir = os.path.join(os.path.dirname(__file__), f'../test4_fig_results/dim_{dim}')
+#             os.makedirs(fig_dir, exist_ok=True)
+#             log_file = os.path.join(fig_dir, f'Test_{dim}_log.txt')
 
-            with open(log_file, "a") as f:
-                f.write(f"\n=== Benchmark: {bench_disp} | Dimension: {dim} ===\n")
-                print(f"\nBenchmark: {bench_disp} (dim={dim})")
+#             with open(log_file, "a") as f:
+#                 f.write(f"\n=== Benchmark: {bench_disp} | Dimension: {dim} ===\n")
+#                 print(f"\nBenchmark: {bench_disp} (dim={dim})")
 
-                func = get_function_by_name(bench_name)
+#                 func = get_function_by_name(bench_name)
 
-                try:
-                    dummy_x = np.zeros(dim)
-                    _, lb, ub = func(dummy_x)
-                except Exception as e:
-                    print(f"  Skipping {bench_disp}: incompatible with dim={dim} ({e})")
-                    f.write(f"  Skipped {bench_disp}: incompatible with dim={dim} ({e})\n")
-                    continue
+#                 try:
+#                     dummy_x = np.zeros(dim)
+#                     _, lb, ub = func(dummy_x)
+#                 except Exception as e:
+#                     print(f"  Skipping {bench_disp}: incompatible with dim={dim} ({e})")
+#                     f.write(f"  Skipped {bench_disp}: incompatible with dim={dim} ({e})\n")
+#                     continue
 
-                bounds = [(lb, ub)] * dim
+#                 bounds = [(lb, ub)] * dim
 
-                def obj(x):
-                    y, _, _ = func(x)
-                    return y
+#                 def obj(x):
+#                     y, _, _ = func(x)
+#                     return y
 
-                plt.figure(figsize=(10, 6))
-                n_runs = 2  # can be adjusted globally if needed
-                for alg_name, runner in algorithms:
-                    print(f"  Algorithm: {alg_name}")
-                    histories = []
-                    final_vals = []
+#                 plt.figure(figsize=(10, 6))
+#                 n_runs = 2  # can be adjusted globally if needed
+#                 for alg_name, runner in algorithms:
+#                     print(f"  Algorithm: {alg_name}")
+#                     histories = []
+#                     final_vals = []
 
-                    ck_key = f"dim{dim}_{bench_name}_{alg_name}"
-                    ck = checkpoint.get(ck_key, {"completed_runs": []})
-                    # preload completed runs (final values and histories if CSV exists)
-                    completed = ck.get("completed_runs", [])
-                    # If previous runs exist, try to load combined CSV of past runs to reconstruct histories
-                    combined_csv = os.path.join(fig_dir, f"{alg_name}_{bench_disp.replace(' ', '_')}_dim{dim}_runs.csv")
-                    if os.path.exists(combined_csv):
-                        try:
-                            with open(combined_csv, 'r', newline='') as csvfile_prev:
-                                reader_prev = csv.reader(csvfile_prev)
-                                header = next(reader_prev, [])
-                                # header: ['generation', 'run_1', 'run_2', ...]
-                                cols = []
-                                for _ in range(max(0, len(header) - 1)):
-                                    cols.append([])
-                                for row in reader_prev:
-                                    # row[0] is generation
-                                    for ci, val in enumerate(row[1:]):
-                                        try:
-                                            cols[ci].append(float(val))
-                                        except Exception:
-                                            cols[ci].append(float('nan'))
-                                for col in cols:
-                                    histories.append(np.array(col))
-                                    if len(col) > 0:
-                                        final_vals.append(float(col[-1]))
-                        except Exception:
-                            # fallback: if CSV can't be read, leave histories empty and rely on checkpoint metadata
-                            histories = []
-                    else:
-                        # no combined CSV present; rely on checkpoint entries for final values
-                        for ent in completed:
-                            final_val = float(ent.get("final", float('nan')))
-                            final_vals.append(final_val)
+#                     ck_key = f"dim{dim}_{bench_name}_{alg_name}"
+#                     ck = checkpoint.get(ck_key, {"completed_runs": []})
+#                     # preload completed runs (final values and histories if CSV exists)
+#                     completed = ck.get("completed_runs", [])
+#                     # If previous runs exist, try to load combined CSV of past runs to reconstruct histories
+#                     combined_csv = os.path.join(fig_dir, f"{alg_name}_{bench_disp.replace(' ', '_')}_dim{dim}_runs.csv")
+#                     if os.path.exists(combined_csv):
+#                         try:
+#                             with open(combined_csv, 'r', newline='') as csvfile_prev:
+#                                 reader_prev = csv.reader(csvfile_prev)
+#                                 header = next(reader_prev, [])
+#                                 # header: ['generation', 'run_1', 'run_2', ...]
+#                                 cols = []
+#                                 for _ in range(max(0, len(header) - 1)):
+#                                     cols.append([])
+#                                 for row in reader_prev:
+#                                     # row[0] is generation
+#                                     for ci, val in enumerate(row[1:]):
+#                                         try:
+#                                             cols[ci].append(float(val))
+#                                         except Exception:
+#                                             cols[ci].append(float('nan'))
+#                                 for col in cols:
+#                                     histories.append(np.array(col))
+#                                     if len(col) > 0:
+#                                         final_vals.append(float(col[-1]))
+#                         except Exception:
+#                             # fallback: if CSV can't be read, leave histories empty and rely on checkpoint metadata
+#                             histories = []
+#                     else:
+#                         # no combined CSV present; rely on checkpoint entries for final values
+#                         for ent in completed:
+#                             final_val = float(ent.get("final", float('nan')))
+#                             final_vals.append(final_val)
 
-                    # compute next run index robustly
-                    prev_runs = [ent.get("run") for ent in completed if isinstance(ent.get("run"), int)]
-                    start_run = (max(prev_runs) + 1) if prev_runs else 0
-                    alg_start_time = time.time()
+#                     # compute next run index robustly
+#                     prev_runs = [ent.get("run") for ent in completed if isinstance(ent.get("run"), int)]
+#                     start_run = (max(prev_runs) + 1) if prev_runs else 0
+#                     alg_start_time = time.time()
 
-                    for run in range(start_run, n_runs):
-                        run_start = time.time()
-                        eval_budget = 350_000
+#                     for run in range(start_run, n_runs):
+#                         run_start = time.time()
+#                         eval_budget = 350_000
 
-                        # call runner with standard signature: (obj, bounds, dim, max_evals, seed=..., progress=..., bench_func=...)
-                        try:
-                            # derive per-run seed from default base to keep this function safe when called independently
-                            per_run_seed = DEFAULT_BASE_SEED + run
-                            result = runner(obj, bounds, dim, eval_budget, seed=per_run_seed, progress=None, bench_func=func)
-                        except TypeError:
-                            # fallback: some runners (IICO) expect pop_size argument; handle explicitly
-                            if alg_name == "IICO":
-                                pop_size = 60
-                                result = runner(obj, bounds, dim, eval_budget, pop_size, func, seed=run, progress=None)
-                            else:
-                                # last-resort: try old signature
-                                try:
-                                    result = runner(obj, bounds, seed=run, progress=None)
-                                except TypeError:
-                                    result = runner(obj, bounds, seed=run)
+#                         # call runner with standard signature: (obj, bounds, dim, max_evals, seed=..., progress=..., bench_func=...)
+#                         try:
+#                             # derive per-run seed from default base to keep this function safe when called independently
+#                             per_run_seed = DEFAULT_BASE_SEED + run
+#                             result = runner(obj, bounds, dim, eval_budget, seed=per_run_seed, progress=None, bench_func=func)
+#                         except TypeError:
+#                             # fallback: some runners (IICO) expect pop_size argument; handle explicitly
+#                             if alg_name == "IICO":
+#                                 pop_size = 60
+#                                 result = runner(obj, bounds, dim, eval_budget, pop_size, func, seed=run, progress=None)
+#                             else:
+#                                 # last-resort: try old signature
+#                                 try:
+#                                     result = runner(obj, bounds, seed=run, progress=None)
+#                                 except TypeError:
+#                                     result = runner(obj, bounds, seed=run)
 
-                        # handle returned history
-                        if isinstance(result, tuple) and len(result) == 2:
-                            history, _ = result
-                        else:
-                            history = result
+#                         # handle returned history
+#                         if isinstance(result, tuple) and len(result) == 2:
+#                             history, _ = result
+#                         else:
+#                             history = result
 
-                        history = np.array(history)
-                        histories.append(history)
-                        final_vals.append(float(history[-1]))
+#                         history = np.array(history)
+#                         histories.append(history)
+#                         final_vals.append(float(history[-1]))
 
 
-                        # --- Save combined CSV of all runs (overwrite single file) ---
-                        histories_to_save = pad_histories(histories)
-                        combined_csv = os.path.join(fig_dir, f"{alg_name}_{bench_disp.replace(' ', '_')}_dim{dim}_runs.csv")
-                        with open(combined_csv, 'w', newline='') as csvfile:
-                            writer = csv.writer(csvfile)
-                            header = ["generation"] + [f"run_{i+1}" for i in range(histories_to_save.shape[0])]
-                            writer.writerow(header)
-                            for gen_idx in range(histories_to_save.shape[1]):
-                                row = [gen_idx] + [float(histories_to_save[r, gen_idx]) for r in range(histories_to_save.shape[0])]
-                                writer.writerow(row)
+#                         # --- Save combined CSV of all runs (overwrite single file) ---
+#                         histories_to_save = pad_histories(histories)
+#                         combined_csv = os.path.join(fig_dir, f"{alg_name}_{bench_disp.replace(' ', '_')}_dim{dim}_runs.csv")
+#                         with open(combined_csv, 'w', newline='') as csvfile:
+#                             writer = csv.writer(csvfile)
+#                             header = ["generation"] + [f"run_{i+1}" for i in range(histories_to_save.shape[0])]
+#                             writer.writerow(header)
+#                             for gen_idx in range(histories_to_save.shape[1]):
+#                                 row = [gen_idx] + [float(histories_to_save[r, gen_idx]) for r in range(histories_to_save.shape[0])]
+#                                 writer.writerow(row)
 
-                        # checkpoint update
-                        ck.setdefault("completed_runs", []).append({
-                            "run": run,
-                            "final": float(history[-1]),
-                            "history_len": len(history)
-                        })
-                        checkpoint[ck_key] = ck
-                        save_checkpoint(checkpoint_file, checkpoint)
+#                         # checkpoint update
+#                         ck.setdefault("completed_runs", []).append({
+#                             "run": run,
+#                             "final": float(history[-1]),
+#                             "history_len": len(history)
+#                         })
+#                         checkpoint[ck_key] = ck
+#                         save_checkpoint(checkpoint_file, checkpoint)
 
-                        # progress
-                        runs_done = len(ck.get("completed_runs", []))
-                        runs_left = max(0, n_runs - runs_done)
-                        elapsed = time.time() - alg_start_time
-                        avg_per_run = elapsed / runs_done if runs_done > 0 else None
-                        eta = avg_per_run * runs_left if avg_per_run is not None else None
-                        best_so_far = np.min(final_vals) if final_vals else float('inf')
-                        sys.stdout.write(
-                            f"    {alg_name} run {runs_done}/{n_runs} | best={best_so_far:.2e} | ETA={format_eta(eta)}\r"
-                        )
-                        sys.stdout.flush()
+#                         # progress
+#                         runs_done = len(ck.get("completed_runs", []))
+#                         runs_left = max(0, n_runs - runs_done)
+#                         elapsed = time.time() - alg_start_time
+#                         avg_per_run = elapsed / runs_done if runs_done > 0 else None
+#                         eta = avg_per_run * runs_left if avg_per_run is not None else None
+#                         best_so_far = np.min(final_vals) if final_vals else float('inf')
+#                         sys.stdout.write(
+#                             f"    {alg_name} run {runs_done}/{n_runs} | best={best_so_far:.2e} | ETA={format_eta(eta)}\r"
+#                         )
+#                         sys.stdout.flush()
 
-                    print("")
-                    if not histories:
-                        print(f"    No runs completed for {alg_name}")
-                        f.write(f"  {alg_name}: No runs completed\n")
-                        continue
+#                     print("")
+#                     if not histories:
+#                         print(f"    No runs completed for {alg_name}")
+#                         f.write(f"  {alg_name}: No runs completed\n")
+#                         continue
 
-                    histories = pad_histories(histories)
-                    mean_curve = np.mean(histories, axis=0)
-                    std_curve = np.std(histories, axis=0)
-                    gens = np.arange(len(mean_curve))
-                    plt.plot(gens, mean_curve, label=alg_name)
-                    plt.fill_between(gens, mean_curve - std_curve, mean_curve + std_curve, alpha=0.2)
+#                     histories = pad_histories(histories)
+#                     mean_curve = np.mean(histories, axis=0)
+#                     std_curve = np.std(histories, axis=0)
+#                     gens = np.arange(len(mean_curve))
+#                     plt.plot(gens, mean_curve, label=alg_name)
+#                     plt.fill_between(gens, mean_curve - std_curve, mean_curve + std_curve, alpha=0.2)
 
-                    final_vals_arr = np.array(final_vals)
-                    avg_final = float(np.mean(final_vals_arr))
-                    max_final = float(np.max(final_vals_arr))
-                    min_final = float(np.min(final_vals_arr))
+#                     final_vals_arr = np.array(final_vals)
+#                     avg_final = float(np.mean(final_vals_arr))
+#                     max_final = float(np.max(final_vals_arr))
+#                     min_final = float(np.min(final_vals_arr))
 
-                    f.write(f"  {alg_name}: mean={avg_final:.2e}, max={max_final:.2e}, min={min_final:.2e}\n")
-                    print(f"    mean_final: {avg_final:.2e}, max: {max_final:.2e}, min: {min_final:.2e}")
+#                     f.write(f"  {alg_name}: mean={avg_final:.2e}, max={max_final:.2e}, min={min_final:.2e}\n")
+#                     print(f"    mean_final: {avg_final:.2e}, max: {max_final:.2e}, min: {min_final:.2e}")
 
-                    summary = {
-                        "algorithm": alg_name,
-                        "benchmark": bench_name,
-                        "benchmark_display": bench_disp,
-                        "dim": dim,
-                        "n_runs": len(final_vals_arr),
-                        "mean_final": avg_final,
-                        "max_final": max_final,
-                        "min_final": min_final,
-                        "completed_runs": ck.get("completed_runs", [])
-                    }
-                    summary_path = os.path.join(fig_dir, f"summary_{alg_name}_{bench_disp.replace(' ', '_')}_dim{dim}.json")
-                    with open(summary_path, 'w') as sfh:
-                        json.dump(summary, sfh, indent=2)
+#                     summary = {
+#                         "algorithm": alg_name,
+#                         "benchmark": bench_name,
+#                         "benchmark_display": bench_disp,
+#                         "dim": dim,
+#                         "n_runs": len(final_vals_arr),
+#                         "mean_final": avg_final,
+#                         "max_final": max_final,
+#                         "min_final": min_final,
+#                         "completed_runs": ck.get("completed_runs", [])
+#                     }
+#                     summary_path = os.path.join(fig_dir, f"summary_{alg_name}_{bench_disp.replace(' ', '_')}_dim{dim}.json")
+#                     with open(summary_path, 'w') as sfh:
+#                         json.dump(summary, sfh, indent=2)
 
-                    f.flush()
+#                     f.flush()
 
-                # --- Plot and save convergence ---
-                plt.title(f"Convergence Curves: {bench_disp} (dim={dim}, {n_runs} runs)")
-                plt.xlabel("Generation")
-                plt.ylabel("Best Fitness")
-                plt.legend()
-                plt.grid(True)
-                plt.tight_layout()
-                fig_path = os.path.join(fig_dir, f"convergence_{bench_disp.replace(' ', '_')}_dim{dim}.png")
-                plt.savefig(fig_path)
-                plt.close()
-                print(f"  Saved plot: {fig_path}")
-                f.write("\n")
+#                 # --- Plot and save convergence ---
+#                 plt.title(f"Convergence Curves: {bench_disp} (dim={dim}, {n_runs} runs)")
+#                 plt.xlabel("Generation")
+#                 plt.ylabel("Best Fitness")
+#                 plt.legend()
+#                 plt.grid(True)
+#                 plt.tight_layout()
+#                 fig_path = os.path.join(fig_dir, f"convergence_{bench_disp.replace(' ', '_')}_dim{dim}.png")
+#                 plt.savefig(fig_path)
+#                 plt.close()
+#                 print(f"  Saved plot: {fig_path}")
+#                 f.write("\n")
 
 
 if __name__ == "__main__":

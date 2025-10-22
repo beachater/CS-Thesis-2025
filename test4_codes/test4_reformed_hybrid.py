@@ -9,14 +9,19 @@ import numpy as np
 @dataclass
 class Antibody:
     x: np.ndarray
-    affinity: float          # higher is better (we maximize affinity = -objective)
-    T: int = 0               # survival time / age
-    S: int = 0               # selection count / memory
+    affinity: float          # higher is better (we maximize affinity)
+    T: int = 0               # survival time
+    S: int = 0               # selection count / strength
 
-class HybridRolePartitioned:
+class HybridRolePartitionedOriginal:
     """
-    Role-partitioned hybrid of FCSA (explorers) + IICO-style exploiters.
-    Includes a small IICO-style 'spark' perturbation. No TSD or related mechanisms.
+    Role-partitioned hybrid of FCSA (explorers) + IICO-style exploitation (exploiters)
+    with stagnation-gated Rac1 forgetting.
+
+    - explorers: run FCSA pipeline (broad exploration, forgetting anchored)
+    - exploiters: run simplified IICO-style pipeline (adaptive cloning/exploitation)
+    - periodic exchange: move best from explorers -> exploiters, demote worst exploiters
+    - forgetting (Rac1) only runs when stagnation >= stagn_thresh OR population entropy < entropy_thresh
     """
 
     def __init__(
@@ -45,8 +50,6 @@ class HybridRolePartitioned:
         exponent: float = 2.0,
         beta: float = 100.0,
         gamma: float = 1e-19,
-        # spark
-        spark_prob: float = 0.04,
         verbose: bool = False,
     ):
         self.func = func
@@ -83,9 +86,6 @@ class HybridRolePartitioned:
         self.beta = float(beta)
         self.gamma = float(gamma)
 
-        # spark
-        self.spark_prob = float(spark_prob)
-
         if seed is not None:
             np.random.seed(seed)
             random.seed(seed)
@@ -96,6 +96,8 @@ class HybridRolePartitioned:
         self.widths = self.ub - self.lb
         self.mid = (self.lb + self.ub) / 2.0
         self.a_vec = self.a_frac * self.widths
+        # self.M = float(np.mean(self.widths) / 2.0)
+        # for IICO-style M
         self.M = float(np.mean(self.widths) / 2.0)
 
         self.history_best: List[Tuple[float, np.ndarray]] = []
@@ -138,6 +140,7 @@ class HybridRolePartitioned:
         return sub_sorted[: max(1, min(k, len(sub_sorted)))]
 
     def _clone_fsca(self, selected: List[Antibody]) -> List[Antibody]:
+        # identical to FCSA._clone but local
         if not selected:
             return []
         affs = np.array([ab.affinity for ab in selected], dtype=float)
@@ -159,7 +162,7 @@ class HybridRolePartitioned:
         a_min, a_max = float(affs.min()), float(affs.max())
         denom = max(a_max - a_min, 1e-12)
         for ab in clones:
-            a_norm = (ab.affinity - a_min) / denom if denom > 0 else 0.5
+            a_norm = (ab.affinity - a_min) / denom
             p = math.exp(-self.r * a_norm)
             mask = np.random.rand(self.dim) < p
             if np.any(mask):
@@ -170,27 +173,32 @@ class HybridRolePartitioned:
                 ab.T = 0
                 ab.S = 1
 
-    # Immune Directional Perturbation (IDP) used optionally by explorers
+     # Immune Directional Perturbation (IDP)
     def _idp_operator(self, x: np.ndarray, elite: np.ndarray) -> np.ndarray:
+        # Pick a random point in the domain
         rand = self.lb + np.random.rand(self.dim) * self.widths
+        
+        # Direction = weighted combo of elite and random
         w = np.random.rand()
         direction = w * (elite - x) + (1 - w) * (rand - x)
+        
+        # Step size proportional to domain scale
         step = 0.1 * self.widths * np.random.randn(self.dim)
         cand = x + direction * np.random.rand() + step
+
+        # Clip to bounds
         self._clip(cand)
         return cand
 
     # ----------------- IICO-like helpers for exploiters -----------------
-    def _spark(self, x: np.ndarray) -> np.ndarray:
-        # small chaotic/local perturbation inspired by the TSD spark
-        z = np.random.rand(self.dim)
-        z = 3.99 * z * (1 - z)
-        kick = (z - 0.5) * 0.5 * self.widths
-        y = x + kick
-        self._clip(y)
-        return y
-
     def _iico_exploit_generate(self, pop: List[Antibody], idxs: List[int], it: int, k_param: float) -> List[Antibody]:
+        """
+        Simplified IICO offspring generation for exploiters subpopulation.
+        - idxs : indices of exploiters within pop
+        - it   : iteration counter (used in schedule)
+        - k_param : derived constant similar to iico's k (controls schedule)
+        Returns list of offspring Antibody objects (not integrated into pop).
+        """
         if not idxs:
             return []
         n = len(idxs)
@@ -202,7 +210,7 @@ class HybridRolePartitioned:
         if f_best == f_worst:
             NF = np.ones(n, dtype=float)
         else:
-            NF = (fit - f_worst) / (f_best - f_worst)
+            NF = (fit - f_worst) / (f_best - f_worst)  # NF in ... note same transform as iico
         # selection count n_iter
         y = round(n * (98 * (1 - it / k_param) + 2) / 100)
         n_iter = max(1, int(y))
@@ -222,38 +230,53 @@ class HybridRolePartitioned:
             r = random.random()
             TT_i = F1 * r
             R = np.linalg.norm(pop[idx].x - TT_i)
+            # avoid divide by zero:
             denom = (R + np.finfo(float).eps)
             E = (TT_i - pop[idx].x) / denom
             E_list.append(E)
-        # amplitude and schedules
+        # amplitude A akin to IICO:
+        # compute current schedule alpha_iter
+        # derive k param passed to function; use same formula as IICO caller can compute k
         Z = math.exp(-self.beta * it / k_param)
         if Z <= self.gamma:
             self.beta = -math.log(10 * self.gamma) * k_param / max(1, it)
             Z = math.exp(-self.beta * it / k_param)
         sigma_iter = ((k_param - it) / max(1.0, (k_param - 1))) ** self.exponent * (self.sigma_initial - self.sigma_final) + self.sigma_final
         alpha_iter = 10.0 * math.log(max(1e-9, self.M)) * Z
-        A_list = [ (20 * alpha_iter * E) for E in E_list]
+        A_list = [ (20 * alpha_iter * E) for E in E_list ]
 
+        # now generate offsprings: for each exploiter we may create several offsprings proportional to NF
         offspring = []
         for i_local, idx in enumerate(idxs):
-            S = max(1, int(math.floor(0 + (2 - 0) * NF[i_local])))
-            S = max(1, S)
+            S = max(0, int(math.floor(0 + (2 - 0) * NF[i_local])))  # simplify s_min/s_max mapping; s_max=2
+            S = max(1, S)  # produce at least one candidate per exploiter
             for _ in range(S):
                 if random.random() < sigma_iter:
                     X_temp = pop[idx].x + alpha_iter * np.random.randn(self.dim)
                     self._clip(X_temp)
+                    cand_fit = self._objective(X_temp)
+                    offspring.append(Antibody(x=np.array(X_temp), affinity=-cand_fit, T=0, S=1))
                 else:
-                    X_temp = pop[idx].x + A_list[i_local]
+                    delta_temp = (np.random.rand(self.dim) * 0.0) + A_list[i_local]
+                    X_temp = pop[idx].x + delta_temp
                     self._clip(X_temp)
-                # apply spark occasionally as a local tweak
-                if random.random() < self.spark_prob:
-                    X_temp = self._spark(X_temp)
-                cand_fit = self._objective(X_temp)
-                offspring.append(Antibody(x=np.array(X_temp), affinity=-cand_fit, T=0, S=1))
+                    cand_fit = self._objective(X_temp)
+                    # quasi-opposite/reflection check as a small local step (approx)
+                    # implement a simplified quasi-opposite: mix with mid/opposite randomly
+                    if random.random() < 0.1:
+                        opposite = self.lb + self.ub - X_temp
+                        qop = np.minimum(self.mid, opposite) + np.random.rand(self.dim) * (np.maximum(self.mid, opposite) - np.minimum(self.mid, opposite))
+                        qop = np.clip(qop, self.lb, self.ub)
+                        qop_fit = self._objective(qop)
+                        if qop_fit < cand_fit:
+                            X_temp = np.array(qop)
+                            cand_fit = qop_fit
+                    offspring.append(Antibody(x=np.array(X_temp), affinity=-cand_fit, T=0, S=1))
         return offspring
 
     # ----------------- forgetting -----------------
     def _forget_in_place(self, pop: List[Antibody]) -> None:
+        # Rac1-style forgetting applied to full population
         for i, ab in enumerate(pop):
             if ab.S <= 0:
                 activity = float("inf") if ab.T > 0 else 0.0
@@ -265,14 +288,16 @@ class HybridRolePartitioned:
 
     # ----------------- entropy -----------------
     def _population_entropy(self, pop: List[Antibody], bins: int = 16) -> float:
+        # compute per-dim entropy and return normalized mean entropy
         X = np.stack([ab.x for ab in pop], axis=0)
         D = X.shape[1]
         ent = 0.0
         for d in range(D):
             x_d = X[:, d]
             data_range = np.max(x_d) - np.min(x_d)
+            # Robust: treat very small range as no diversity
             if data_range < 1e-8:
-                ent_d = 0.0
+                ent_d = 0.0  # No diversity in this dimension (or range too small for bins)
             else:
                 hist, _ = np.histogram(x_d, bins=bins, density=True)
                 p = hist + 1e-12
@@ -280,6 +305,7 @@ class HybridRolePartitioned:
                 ent_d = -np.sum(p * np.log(p + 1e-12))
             ent += ent_d
         ent /= float(D)
+        # normalize by log(bins)
         ent = ent / math.log(bins + 1e-12)
         return float(ent)
 
@@ -296,7 +322,8 @@ class HybridRolePartitioned:
         best_val = -best.affinity
         stagn = 0
 
-        k_param = max(2, 0.25 * self.max_evals * (1 + 2) / (2 * max(1, self.n_exploit)))
+        # compute IICO-like k parameter (rough analog)
+        k_param = max(2, 0.25 * self.max_evals * (1 + 2) / (2 * max(1, self.n_exploit)))  # heuristic
 
         for gen in range(1, self.max_gens + 1):
             if self.eval_count >= self.max_evals:
@@ -306,7 +333,10 @@ class HybridRolePartitioned:
             for ab in pop:
                 ab.T += 1
 
+            # update partition sizes (keep same indices but adjust if counts changed)
+            # ensure index lists consistent
             if len(self._exploit_idx) != self.n_exploit:
+                # recompute exploit/explore assignment by best affinity
                 idx_sorted = np.argsort([ab.affinity for ab in pop])[::-1]
                 self._exploit_idx = list(idx_sorted[: self.n_exploit])
                 self._explore_idx = [i for i in range(self.N) if i not in self._exploit_idx]
@@ -324,9 +354,10 @@ class HybridRolePartitioned:
             pool = pop + new_candidates
             pool = self._downselect_global(pool)
 
-            # assign new pop and recompute partitions indices
+            # assign new pop and recompute partitions indices (keep exploiters as indices of best)
             pop = pool[: self.N]
             idx_sorted = np.argsort([ab.affinity for ab in pop])[::-1]
+            # prefer preserving previous exploiters if still good; otherwise choose top-n_exploit
             new_exploit = []
             for idx in idx_sorted:
                 if len(new_exploit) >= self.n_exploit:
@@ -337,23 +368,31 @@ class HybridRolePartitioned:
 
             # ---- stagnation-gated forgetting ----
             entropy = self._population_entropy(pop)
+            # decide threshold dynamic: compare to historical average entropy if available
+            # here we use fraction of max entropy (which is ~1.0 after normalization)
             if (stagn >= self.stagn_thresh) or (entropy < self.entropy_frac_threshold):
                 self._forget_in_place(pop)
+            # else skip forgetting to allow IICO exploitation to finish fine-tuning
 
             # ---- periodic exchange (small seeds) ----
             if (gen % self.exchange_interval) == 0:
+                # move top from explorers -> exploiters (seed)
                 explorers_sorted = sorted([ (i, pop[i]) for i in self._explore_idx ], key=lambda t: t[1].affinity, reverse=True)
                 top_from_explore = [i for i, _ in explorers_sorted[: self.exchange_k ]]
                 if top_from_explore:
+                    # demote worst exploiters
                     exploiters_sorted = sorted([ (i, pop[i]) for i in self._exploit_idx ], key=lambda t: t[1].affinity)
                     demote_idxs = [i for i, _ in exploiters_sorted[: min(len(exploiters_sorted), len(top_from_explore)) ]]
+                    # swap roles (preserve population entries but exchange indices)
                     for idx_in, idx_out in zip(top_from_explore, demote_idxs):
+                        # swap index membership
                         if idx_out in self._exploit_idx:
                             self._exploit_idx.remove(idx_out)
                         if idx_in in self._explore_idx:
                             self._explore_idx.remove(idx_in)
                         self._exploit_idx.append(idx_in)
                         self._explore_idx.append(idx_out)
+                    # trim if oversize
                     self._exploit_idx = self._exploit_idx[: self.n_exploit]
                     self._explore_idx = [i for i in range(self.N) if i not in self._exploit_idx]
 
@@ -379,30 +418,3 @@ class HybridRolePartitioned:
             "final_entropy": self._population_entropy(pop),
         }
         return best.x.copy(), best_val, diagnostics
-
-# demo
-if __name__ == "__main__":
-    def ackley(x: np.ndarray) -> float:
-        a, b, c = 20.0, 0.2, 2 * math.pi
-        d = x.size
-        sum_sq = np.sum(x * x)
-        sum_cos = np.sum(np.cos(c * x))
-        return -a * math.exp(-b * math.sqrt(sum_sq / d)) - np.exp(sum_cos / d) + a + np.e
-
-    dim = 2
-    bounds = [(-5.0, 5.0)] * dim
-
-    opt = HybridRolePartitioned(
-        func=ackley,
-        bounds=bounds,
-        N=60,
-        p_exploit=0.25,
-        n_select=15,
-        n_clones=5,
-        max_gens=400,
-        max_evals=60_000,
-        seed=123,
-        spark_prob=0.06
-    )
-    xbest, fbest, info = opt.minimize()
-    print("best f", fbest, "evals", info["evals_used"])
