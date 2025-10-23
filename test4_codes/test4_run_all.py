@@ -36,6 +36,23 @@ benchmarks = [
 
 ]
 
+# Global dimension support per benchmark. Move here so interactive flow can consult it.
+DIM_SUPPORT = {
+    "SchafferN2": [2],
+    "SchafferN4": [2],
+    "Ackley": [2, 50, 100],
+    "Griewank": [2, 50, 100],
+    "Rastrigin": [2, 50, 100],
+    "Shubert": [2],
+    "Eggholder": [2],
+    "HolderTable": [2],
+    "Levy": [2, 50, 100],
+    "Schwefel": [2, 50, 100],
+}
+
+# Per-algorithm supported dims. We'll initialize this after `algorithms` is defined below.
+ALGO_DIM_SUPPORT = {}
+
 
 # Experiment defaults (use these to ensure fair comparisons)
 DEFAULT_POP = 60
@@ -151,6 +168,15 @@ algorithms = [
 
 
 ]
+
+# Initialize per-algorithm support using DIM_SUPPORT as a safe default where possible
+for alg_name, _ in algorithms:
+    # default: intersection of all benchmark dims where possible, else common set
+    all_dims = set()
+    for dims in DIM_SUPPORT.values():
+        all_dims.update(dims)
+    # use the common dims list as default
+    ALGO_DIM_SUPPORT[alg_name] = sorted(all_dims) if all_dims else [2, 50, 100]
 
 
 import argparse
@@ -464,6 +490,7 @@ if __name__ == "__main__":
     parser.add_argument("--algorithms", "-a", nargs="*", help="Algorithm names to run (default: all)")
     parser.add_argument("--benchmarks", "-b", nargs="*", help="Benchmark functions to run (names or numbers from the list). If provided, only these benchmarks are run (default: all)")
     parser.add_argument("--dims", "-d", nargs="*", type=int, help="Dimensions to run (e.g. 2 50 100). Default: auto-detect per benchmark")
+    parser.add_argument("--priority-dims", "-p", nargs="*", type=int, help="Dimensions to prioritise and run first for each benchmark (e.g. 2). These dims will be moved to the front if supported by the benchmark")
     parser.add_argument("--yes", "-y", action="store_true", help="Non-interactive: accept defaults or provided args")
     parser.add_argument("--base-seed", type=int, default=1000, help="Base seed for runs; per-run seed = base_seed + run_index")
     args = parser.parse_args()
@@ -479,6 +506,29 @@ if __name__ == "__main__":
 
     # If not in non-interactive mode and no benchmarks provided, prompt for benchmarks
     if not args.yes and not selected_benchmarks:
+        # Interactive guided selection flow:
+        # 1) choose algorithms (or 'all')
+        print("Available algorithms:")
+        for i, (alg_name, _) in enumerate(algorithms):
+            print(f"  {i+1}. {alg_name}")
+        alg_sel = input("Enter comma-separated algorithm numbers or names to run (or 'all'): ")
+        sel_algorithms = None
+        if alg_sel.strip().lower() == 'all' or alg_sel.strip() == '':
+            sel_algorithms = [name for name, _ in algorithms]
+        else:
+            choices = [s.strip() for s in alg_sel.split(',') if s.strip()]
+            sel_algorithms = []
+            for c in choices:
+                try:
+                    idx = int(c) - 1
+                    sel_algorithms.append(algorithms[idx][0])
+                except Exception:
+                    for name, _ in algorithms:
+                        if c.lower() == name.lower():
+                            sel_algorithms.append(name)
+                            break
+
+        # 2) choose benchmarks (or 'all')
         print("Available benchmark functions:")
         for i, (disp, name) in enumerate(benchmarks):
             print(f"  {i+1}. {disp} ({name})")
@@ -493,16 +543,96 @@ if __name__ == "__main__":
                     idx = int(c) - 1
                     selected_benchmarks.append(benchmarks[idx][1])
                 except Exception:
-                    # try matching by display or canonical name
                     for disp, name in benchmarks:
                         if c.lower() == disp.lower() or c.lower() == name.lower():
                             selected_benchmarks.append(name)
                             break
 
+        # 3) choose dims mode: 'all' (run all supported dims), 'select' (pick specific dims),
+        #    'priority' (pick dims to prioritise first)
+        # Compute candidate dims supported by the selected algorithms (intersection)
+        # If the user selected 'all' algorithms earlier, ALGO_DIM_SUPPORT defaults to broad support.
+        algs_for_prompt = sel_algorithms if sel_algorithms is not None else [name for name, _ in algorithms]
+        # intersection of per-algorithm supported dims
+        candidate_dims = None
+        for a in algs_for_prompt:
+            dims = ALGO_DIM_SUPPORT.get(a, [])
+            if candidate_dims is None:
+                candidate_dims = set(dims)
+            else:
+                candidate_dims &= set(dims)
+        candidate_dims = sorted(candidate_dims) if candidate_dims else []
+
+        print("Dimension selection modes:")
+        print("  1. all    -> run all supported dims for each benchmark")
+        print("  2. select -> choose specific dims to run (e.g. 2 50 100)")
+        print("  3. priority -> choose dims to prioritise (they'll be run first if supported)")
+        mode = input("Choose dims mode (1/2/3) [default=1]: ")
+        mode = mode.strip() or '1'
+
+        def prompt_for_dims(prompt_msg, valid_set):
+            # re-prompt until valid integer dims are entered or blank to cancel
+            while True:
+                ds = input(prompt_msg)
+                if ds.strip() == '':
+                    return None
+                parts = [p for p in ds.split() if p.strip()]
+                vals = []
+                ok = True
+                for p in parts:
+                    try:
+                        v = int(p)
+                        vals.append(v)
+                    except Exception:
+                        print(f"  Invalid dim value: '{p}'. Please enter integers separated by spaces.")
+                        ok = False
+                        break
+                if not ok:
+                    continue
+                # if valid_set provided, ensure at least one belongs to valid_set
+                if valid_set is not None:
+                    invalid = [v for v in vals if v not in valid_set]
+                    if invalid:
+                        print(f"  These dims are not supported by the selected algorithm(s): {invalid}")
+                        print(f"  Supported dims for chosen algorithm(s): {sorted(valid_set)}")
+                        continue
+                return vals
+
+        if mode == '2':
+            prompt = f"Enter space-separated dims to run (available dims by selected algorithm(s): {candidate_dims}) or blank to cancel: "
+            selected_dims = prompt_for_dims(prompt, set(candidate_dims) if candidate_dims else None)
+        elif mode == '3':
+            prompt = f"Enter space-separated priority dims (available dims: {candidate_dims}) or blank to cancel: "
+            priority_dims = prompt_for_dims(prompt, set(candidate_dims) if candidate_dims else None)
+        else:
+            # default: run all supported dims (selected_dims stays None)
+            selected_dims = None
+
+        # If a single algorithm was chosen, filter benchmark dims if algorithm-specific
+        # NOTE: We approximate algorithm-specific dim support via the dim_support mapping later when running.
+        # We will apply filtering at runtime per benchmark.
+
+    # Respect CLI over interactive selections. If CLI provided values, they take precedence.
     if args.algorithms:
         selected_algs = args.algorithms
+    else:
+        # if interactive flow created sel_algorithms, use it
+        if 'sel_algorithms' in locals():
+            selected_algs = sel_algorithms
+
     if args.dims:
         selected_dims = args.dims
+    # else: keep selected_dims set by interactive flow (may be None for 'all')
+
+    # priority dims: prefer CLI if provided, otherwise keep interactive value if set
+    if args.priority_dims is not None:
+        priority_dims = args.priority_dims
+    else:
+        if 'priority_dims' in locals():
+            # keep interactive value
+            priority_dims = priority_dims
+        else:
+            priority_dims = None
 
     # Wrap original run_all_dims to accept filters via closure
     def run_all_dims_filtered():
@@ -542,6 +672,14 @@ if __name__ == "__main__":
                 if not supported_dims_local:
                     print(f"  Skipping {bench_disp}: no selected dimensions supported")
                     continue
+            # if priority dims provided, move supported priority dims to the front preserving order
+            if priority_dims:
+                # keep only those priority dims that are supported for this benchmark
+                pri_supported = [d for d in priority_dims if d in supported_dims_local]
+                if pri_supported:
+                    # build new ordering: pri_supported first (in given order), then remaining dims in original order
+                    remaining = [d for d in supported_dims_local if d not in pri_supported]
+                    supported_dims_local = pri_supported + remaining
 
             for dim in supported_dims_local:
                 fig_dir = os.path.join(os.path.dirname(__file__), f'../test4_fig_results/dim_{dim}')
@@ -551,6 +689,13 @@ if __name__ == "__main__":
                 with open(log_file, "a") as f:
                     f.write(f"\n=== Benchmark: {bench_disp} | Dimension: {dim} ===\n")
                     print(f"\nBenchmark: {bench_disp} (dim={dim})")
+
+                    # Pre-run summary for transparency
+                    algs_to_run = [alg_name for alg_name, _ in algorithms if (sel_algs is None or alg_name in sel_algs)]
+                    print(f"  Algorithms to run: {algs_to_run}")
+                    print(f"  Ordered dims for this benchmark: {supported_dims_local}")
+                    f.write(f"  Algorithms: {algs_to_run}\n")
+                    f.write(f"  Ordered dims: {supported_dims_local}\n")
 
                     func = get_function_by_name(bench_name)
 
