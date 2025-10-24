@@ -1,0 +1,50 @@
+
+=== Benchmark: Ackley | Dimension: 100 ===
+  Algorithms: ['HybridReformed', 'HybridBase', 'TSD', 'FCSA', 'IICO']
+  Ordered dims: [2, 50, 100]
+  HybridReformed: mean=9.15e-04, max=1.53e-03, min=6.23e-04
+  HybridBase: mean=1.50e-03, max=1.53e-03, min=1.47e-03
+  TSD: mean=1.65e-15, max=1.82e-14, min=4.44e-16
+  FCSA: mean=1.08e+01, max=1.21e+01, min=9.93e+00
+  IICO: mean=4.44e-16, max=4.44e-16, min=4.44e-16
+
+
+=== Benchmark: Griewank | Dimension: 100 ===
+  Algorithms: ['HybridReformed', 'HybridBase', 'TSD', 'FCSA', 'IICO']
+  Ordered dims: [2, 50, 100]
+  HybridReformed: mean=9.30e-08, max=3.34e-07, min=1.55e-10
+  HybridBase: mean=6.93e-07, max=9.92e-07, min=3.99e-07
+  TSD: mean=0.00e+00, max=0.00e+00, min=0.00e+00
+  FCSA: mean=7.77e+01, max=9.86e+01, min=5.97e+01
+  IICO: mean=0.00e+00, max=0.00e+00, min=0.00e+00
+
+
+=== Benchmark: Rastrigin | Dimension: 100 ===
+  Algorithms: ['HybridReformed', 'HybridBase', 'TSD', 'FCSA', 'IICO']
+  Ordered dims: [2, 50, 100]
+  HybridReformed: mean=2.54e-04, max=6.74e-04, min=1.08e-04
+  HybridBase: mean=3.82e+00, max=3.82e+02, min=4.22e-04
+  TSD: mean=0.00e+00, max=0.00e+00, min=0.00e+00
+  FCSA: mean=7.21e+02, max=8.49e+02, min=6.17e+02
+  IICO: mean=0.00e+00, max=0.00e+00, min=0.00e+00
+
+
+=== Benchmark: Schwefel | Dimension: 100 ===
+  Algorithms: ['HybridReformed', 'HybridBase', 'TSD', 'FCSA', 'IICO']
+  Ordered dims: [2, 50, 100]
+  HybridReformed: mean=2.03e+04, max=2.31e+04, min=1.75e+04
+  HybridBase: mean=2.03e+04, max=2.26e+04, min=1.71e+04
+  TSD: mean=3.07e+04, max=3.25e+04, min=2.80e+04
+  FCSA: mean=2.27e+04, max=2.52e+04, min=2.07e+04
+  IICO: mean=3.01e+04, max=3.42e+04, min=2.49e+04
+
+
+=== Benchmark: Levy | Dimension: 100 ===
+  Algorithms: ['HybridReformed', 'HybridBase', 'TSD', 'FCSA', 'IICO']
+  Ordered dims: [2, 50, 100]
+  HybridReformed: mean=5.24e+00, max=6.34e+00, min=4.06e+00
+  HybridBase: mean=5.45e+00, max=6.94e+00, min=4.16e+00
+  TSD: mean=9.58e+00, max=9.62e+00, min=9.19e+00
+  FCSA: mean=1.72e+02, max=3.14e+02, min=9.25e+01
+  IICO: mean=8.72e+00, max=9.18e+00, min=7.73e+00
+
