@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformedTSD",
+  "benchmark": "Rastrigin",
+  "benchmark_display": "Rastrigin",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": 2.233393244566173e-06,
+  "max_final": 4.306070948700835e-06,
+  "min_final": 1.6071554043151082e-07,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 4.306070948700835e-06,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 1.6071554043151082e-07,
+      "history_len": 1000
+    }
+  ]
+}

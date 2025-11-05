@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformedTSD",
+  "benchmark": "Ackley",
+  "benchmark_display": "Ackley",
+  "dim": 100,
+  "n_runs": 2,
+  "mean_final": 0.001042360554791788,
+  "max_final": 0.0011782897690868488,
+  "min_final": 0.0009064313404967272,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 0.0009064313404967272,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 0.0011782897690868488,
+      "history_len": 1000
+    }
+  ]
+}

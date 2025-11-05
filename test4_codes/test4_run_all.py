@@ -18,6 +18,7 @@ from tsd import ETFCSA_TSD
 from test4_reformed_hybrid_iico_spark import HybridFCSA_IICO
 
 from test4_reformed_hybrid import HybridRolePartitionedOriginal
+from godkiller import HybridRolePartitionedTSDAdaptive
 
 
 
@@ -139,6 +140,26 @@ def run_hybrid_reformed_spark(obj, bounds, dim, max_evals, seed=None, progress=N
 def run_hybrid_reformed(obj, bounds, dim, max_evals, progress=None, seed=None, bench_func=None):
     # Try to pass max_evals and max_gens if the hybrid supports them
     try:
+        opt = HybridRolePartitionedTSDAdaptive(
+            obj,
+            bounds,
+            N=DEFAULT_POP,
+            n_select=DEFAULT_N_SELECT,
+            n_clones=DEFAULT_N_CLONES,
+            a_frac=DEFAULT_A_FRAC,
+            r=DEFAULT_R,
+            seed=seed,
+            max_gens=DEFAULT_MAX_GENS,
+            max_evals=int(max_evals),
+        )
+    except TypeError:
+        opt = HybridRolePartitionedTSDAdaptive(obj, bounds, seed=seed)
+    x_best, f_best, info = opt.minimize()
+    return np.array(info.get("history", [f_best]))
+
+def run_hybrid_reformed_tsd(obj, bounds, dim, max_evals, progress=None, seed=None, bench_func=None):
+    # Try to pass max_evals and max_gens if the hybrid supports them
+    try:
         opt = HybridRolePartitionedOriginal(
             obj,
             bounds,
@@ -163,6 +184,7 @@ algorithms = [
     ("TSD", run_tsd),
     ("FCSA", run_fcsa), 
     ("IICO", run_iico),
+    ("HybridReformedTSD", run_hybrid_reformed_tsd),
 
 
 
@@ -658,7 +680,7 @@ if __name__ == "__main__":
             "Levy": [2, 50, 100],
             "Schwefel": [2, 50, 100],
         }
-        checkpoint_file = os.path.join(os.path.dirname(__file__), '../test4_checkpoint_results/experiment_checkpoint.json')
+        checkpoint_file = os.path.join(os.path.dirname(__file__), '../demo_checkpoint_results/experiment_checkpoint.json')
         checkpoint = load_checkpoint(checkpoint_file) or {}
 
         for bench_disp, bench_name in benchmarks:
@@ -682,7 +704,7 @@ if __name__ == "__main__":
                     supported_dims_local = pri_supported + remaining
 
             for dim in supported_dims_local:
-                fig_dir = os.path.join(os.path.dirname(__file__), f'../test4_fig_results/dim_{dim}')
+                fig_dir = os.path.join(os.path.dirname(__file__), f'../demo_results/dim_{dim}')
                 os.makedirs(fig_dir, exist_ok=True)
                 log_file = os.path.join(fig_dir, f'Test_{dim}_log.txt')
 
@@ -714,7 +736,7 @@ if __name__ == "__main__":
                         return y
 
                     plt.figure(figsize=(10, 6))
-                    n_runs = 100
+                    n_runs = 2
                     # iterate only selected algorithms if provided
                     for alg_name, runner in algorithms:
                         if sel_algs is not None and alg_name not in sel_algs:

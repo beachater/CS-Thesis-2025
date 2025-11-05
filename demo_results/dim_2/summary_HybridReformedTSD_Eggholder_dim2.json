@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformedTSD",
+  "benchmark": "Eggholder",
+  "benchmark_display": "Eggholder",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": -959.6406626991072,
+  "max_final": -959.640662696958,
+  "min_final": -959.6406627012565,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": -959.6406627012565,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": -959.640662696958,
+      "history_len": 1000
+    }
+  ]
+}

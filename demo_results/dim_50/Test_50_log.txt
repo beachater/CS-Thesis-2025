@@ -1,0 +1,30 @@
+
+=== Benchmark: Ackley | Dimension: 50 ===
+  Algorithms: ['HybridReformedTSD']
+  Ordered dims: [2, 50, 100]
+  HybridReformedTSD: mean=1.35e-03, max=1.46e-03, min=1.25e-03
+
+
+=== Benchmark: Griewank | Dimension: 50 ===
+  Algorithms: ['HybridReformedTSD']
+  Ordered dims: [2, 50, 100]
+  HybridReformedTSD: mean=1.23e-07, max=1.24e-07, min=1.21e-07
+
+
+=== Benchmark: Rastrigin | Dimension: 50 ===
+  Algorithms: ['HybridReformedTSD']
+  Ordered dims: [2, 50, 100]
+  HybridReformedTSD: mean=2.53e-04, max=2.95e-04, min=2.11e-04
+
+
+=== Benchmark: Schwefel | Dimension: 50 ===
+  Algorithms: ['HybridReformedTSD']
+  Ordered dims: [2, 50, 100]
+  HybridReformedTSD: mean=8.44e+03, max=8.66e+03, min=8.22e+03
+
+
+=== Benchmark: Levy | Dimension: 50 ===
+  Algorithms: ['HybridReformedTSD']
+  Ordered dims: [2, 50, 100]
+  HybridReformedTSD: mean=1.17e+00, max=1.29e+00, min=1.05e+00
+

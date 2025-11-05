@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformedTSD",
+  "benchmark": "SchafferN2",
+  "benchmark_display": "Schaffer 2",
+  "dim": 2,
+  "n_runs": 2,
+  "mean_final": 2.6021768073647422e-11,
+  "max_final": 3.775618706569617e-11,
+  "min_final": 1.4287349081598677e-11,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 3.775618706569617e-11,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 1.4287349081598677e-11,
+      "history_len": 1000
+    }
+  ]
+}

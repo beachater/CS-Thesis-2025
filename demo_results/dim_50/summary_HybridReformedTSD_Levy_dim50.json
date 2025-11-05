@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformedTSD",
+  "benchmark": "Levy",
+  "benchmark_display": "Levy",
+  "dim": 50,
+  "n_runs": 2,
+  "mean_final": 1.1667476370005265,
+  "max_final": 1.2861949126547065,
+  "min_final": 1.0473003613463463,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 1.0473003613463463,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 1.2861949126547065,
+      "history_len": 1000
+    }
+  ]
+}

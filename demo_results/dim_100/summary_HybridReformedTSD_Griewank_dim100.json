@@ -1,0 +1,22 @@
+{
+  "algorithm": "HybridReformedTSD",
+  "benchmark": "Griewank",
+  "benchmark_display": "Griewank",
+  "dim": 100,
+  "n_runs": 2,
+  "mean_final": 3.7036321620664836e-08,
+  "max_final": 4.237159312303618e-08,
+  "min_final": 3.1701050118293495e-08,
+  "completed_runs": [
+    {
+      "run": 0,
+      "final": 3.1701050118293495e-08,
+      "history_len": 1000
+    },
+    {
+      "run": 1,
+      "final": 4.237159312303618e-08,
+      "history_len": 1000
+    }
+  ]
+}
