@@ -123,9 +123,7 @@ class ETFCSA_TSD:
     # evaluation wrapper
     def _objective(self, x: np.ndarray) -> float:
         self.evals += 1
-        if self._progress:
-            try: self._progress(1)
-            except Exception: pass
+        # do not call per-evaluation progress here; report per-generation instead
         # substrate decay on schedule
         if self.evals - self._last_decay_eval >= self.drift_interval:
             self.s *= self.rho
@@ -347,10 +345,32 @@ class ETFCSA_TSD:
             self.best_f, self.best_x = f, x.copy()
 
     # main
-    def optimize(self):
+    def optimize(self, progress: Callable[..., None] | None = None):
+    # allow external progress callback to override constructor arg
+        if progress is not None:
+            self._progress = progress
+
         self._init()
+
+        # ---- emit gen=0 snapshot (initial population) ----
+        if self._progress is not None:
+            try:
+                pop_arr = np.stack([ab.x for ab in self.pop]).astype(float) if self.pop else np.empty((0, self.dim))
+                fit_arr = np.array([-ab.aff for ab in self.pop], dtype=float)  # objective values
+                self._progress(
+                    gen=0,
+                    pop=pop_arr,
+                    fitness=fit_arr,
+                    best_fitness=self.best_f,
+                    gbest=self.best_x.copy() if self.best_x is not None else None,
+                    evals=self.evals,
+                )
+            except Exception:
+                pass
+
         last_clear = 0
         gen = 0
+
         # iterate in ticks (generations); stop when either eval budget exhausted or gen reaches max_gens
         while self.evals < self.max_evals and gen < self.max_gens:
             budget = min(self.budget_per_tick, self.max_evals - self.evals)
@@ -358,6 +378,8 @@ class ETFCSA_TSD:
             hot = self._pick_indices()
             if not hot:
                 self.theta *= 0.9
+                # still advance generation counter to keep curves moving
+                gen += 1
                 continue
 
             b1 = max(1, budget // 2)
@@ -365,7 +387,8 @@ class ETFCSA_TSD:
 
             used = 0
             for i in hot:
-                if used >= b1: break
+                if used >= b1:
+                    break
                 used += self._fire_one(i)
 
             k = max(1, len(hot) // 3)
@@ -380,7 +403,25 @@ class ETFCSA_TSD:
                 self._clearance()
                 last_clear = self.evals
 
+            # track best fitness per generation
             self.history.append(self.best_f)
+
+            # per-generation progress (use gen+1 so it follows the gen=0 snapshot)
+            if self._progress is not None:
+                try:
+                    pop_arr = np.stack([ab.x for ab in self.pop]) if len(self.pop) > 0 else np.empty((0, self.dim))
+                    fit_arr = np.array([-ab.aff for ab in self.pop], dtype=float)
+                    self._progress(
+                        gen=gen + 1,
+                        pop=pop_arr,
+                        fitness=fit_arr,
+                        best_fitness=self.best_f,
+                        gbest=self.best_x.copy() if self.best_x is not None else None,
+                        evals=self.evals,
+                    )
+                except Exception:
+                    pass
+
             gen += 1
             if self.evals >= self.max_evals:
                 break
@@ -388,6 +429,7 @@ class ETFCSA_TSD:
                 break
 
         self._polish()
+
         # enforce history length cap
         if len(self.history) > self.max_gens:
             self.history = self.history[: self.max_gens]
@@ -398,6 +440,7 @@ class ETFCSA_TSD:
             "history": self.history,
             "substrate_norm": float(np.linalg.norm(self.s)),
         }
+
 
 
 # demo

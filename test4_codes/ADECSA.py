@@ -108,7 +108,8 @@ def ADECSA(
     FESmax=None,
     ng_update=20,           # update frequency for strategy success probabilities
     max_iter=None,          # optional generation cap
-    seed=None
+    seed=None,
+    progress=None          # optional progress logger
 ):
     np.random.seed(seed)
     D = len(bounds) if D_dim is None else D_dim
@@ -166,14 +167,32 @@ def ADECSA(
     best = pop[best_idx].copy()
     best_f = fitness[best_idx]
 
-    # logging
+    # logging and history
     iter_no = 0
+    history = []
 
     while FES <= FESmax and g <= Gmax:
         iter_no += 1
         SCR = [[] for _ in range(K)]
         SF = [[] for _ in range(K)]
         Sfreq = [[] for _ in range(K)]
+
+        # report progress if logger provided
+        if progress is not None:
+            try:
+                progress(
+                    gen=iter_no-1,  # 0-based gen index
+                    pop=pop.copy(),
+                    fitness=fitness.copy(), 
+                    best_fitness=best_f,
+                    gbest=best.copy(),
+                    evals=FES
+                )
+            except Exception:
+                pass
+
+        # track history
+        history.append(float(best_f))
 
         # For each individual
         new_pop = np.zeros_like(pop)
@@ -381,7 +400,7 @@ def ADECSA(
         if g > max_iter:
             break
 
-    return best, best_f, pop, fitness
+    return best, best_f, pop, fitness, {"history": history}
 
 # ---------------- example usage ----------------
 if __name__ == "__main__":
@@ -392,7 +411,7 @@ if __name__ == "__main__":
 
     dim = 10
     bounds = [(-5.12, 5.12)] * dim
-    best_sol, best_val, pop, fit = ADECSA(
+    best_sol, best_val, pop, fit, stats = ADECSA(
         rastrigin,
         bounds,
         D_dim=dim,
@@ -407,7 +426,7 @@ if __name__ == "__main__":
         Tg=50,
         FESmax=dim * 2000,
         ng_update=20,
-        max_iter=500,
+        max_iter=1000,
         seed=42
     )
     print("BEST", best_val, best_sol)

@@ -13,7 +13,8 @@ def DUSCSA(
     clone_factor=5,         # c
     mutation_rate=0.5,      # p
     crowding_factor=0.1,    # cdf
-    max_iter=1000
+    max_iter=1000,
+    progress=None          # optional progress logger
 ):
     dim = len(bounds)
     lb = np.array([b[0] for b in bounds])
@@ -26,6 +27,9 @@ def DUSCSA(
     best_idx = np.argmin(affinity)
     best = population[best_idx].copy()
     best_aff = affinity[best_idx]
+    
+    # History tracking
+    history = [float(best_aff)]
     
     # Distance threshold σ (Eq.7)
     sigma = crowding_factor * np.sqrt(np.sum((ub - lb) ** 2))
@@ -86,11 +90,24 @@ def DUSCSA(
             best_aff = cur_best_aff
             best = cur_best.copy()
         
-        # Optional progress print
-        if (g + 1) % 50 == 0:
-            print(f"Iter {g+1}/{max_iter}: Best = {best_aff:.6f}")
+        # Track history
+        history.append(float(best_aff))
+        
+        # Report progress if logger provided
+        if progress is not None:
+            try:
+                progress(
+                    gen=g,  # 0-based gen index
+                    pop=population.copy(),
+                    fitness=affinity.copy(),
+                    best_fitness=best_aff,
+                    gbest=best.copy(),
+                    evals=(g + 1) * (pop_size + elite_size * clone_factor)
+                )
+            except Exception:
+                pass
     
-    return best, best_aff
+    return best, best_aff, {"history": history}
 
 
 # ========================
@@ -101,7 +118,7 @@ def rastrigin(x):
     return 10 * len(x) + np.sum(x**2 - 10 * np.cos(2 * np.pi * x))
 
 if __name__ == "__main__":
-    best_sol, best_val = DUSCSA(
+    best_sol, best_val, stats = DUSCSA(
         rastrigin,
         bounds=[(-5.12, 5.12)] * 10,
         pop_size=50,

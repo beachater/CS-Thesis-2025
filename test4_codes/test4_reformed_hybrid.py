@@ -38,6 +38,7 @@ class HybridRolePartitionedOriginal:
         max_gens: int = 1000,
         max_evals: int = 350_000,
         seed: Optional[int] = 42,
+        progress: Optional[Callable] = None,
         # exchange params
         exchange_interval: int = 5,
         exchange_k: int = 2,
@@ -102,6 +103,7 @@ class HybridRolePartitionedOriginal:
 
         self.history_best: List[Tuple[float, np.ndarray]] = []
         self.eval_count = 0
+        self.progress = progress
 
     # ----------------- utilities -----------------
     def _objective(self, x: np.ndarray) -> float:
@@ -401,6 +403,22 @@ class HybridRolePartitionedOriginal:
             cur_best_val = -cur_best.affinity
             self.history_best.append((cur_best_val, cur_best.x.copy()))
             history.append(cur_best_val)
+
+            # Report progress if logger provided
+            if self.progress is not None:
+                try:
+                    # Convert affinities to fitness (minimize)
+                    fitness = np.array([-ab.affinity for ab in pop])
+                    self.progress(
+                        gen=gen-1,  # 0-based gen index
+                        pop=np.array([ab.x for ab in pop]),
+                        fitness=fitness,
+                        best_fitness=cur_best_val,
+                        gbest=cur_best.x,
+                        evals=self.eval_count
+                    )
+                except Exception:
+                    pass
 
             if cur_best_val + 1e-12 < best_val:
                 best_val = cur_best_val

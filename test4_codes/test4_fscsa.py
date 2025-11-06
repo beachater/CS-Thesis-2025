@@ -45,8 +45,8 @@ class FCSA:
         c_threshold: float = 3.0,
         max_gens: int = 1000,
         max_evals: int = 350_000,
-        seed: int | None = 42,
-        progress: Callable[[int], None] | None = None,
+    seed: int | None = 42,
+    progress: Callable[..., None] | None = None,
     ):
         self.func = func
         self.bounds = np.array(bounds, dtype=float)
@@ -70,17 +70,11 @@ class FCSA:
         self.history_best: list[tuple[float, np.ndarray]] = []
 
         self.eval_count = 0
-        # optional progress callback that accepts integer delta
-        self._progress_cb = progress
+        self._progress = progress
 
     # ------------- evaluation helpers -------------
     def _objective(self, x: np.ndarray) -> float:
         self.eval_count += 1
-        if self._progress_cb:
-            try:
-                self._progress_cb(1)
-            except Exception:
-                pass
         return float(self.func(x))
 
     def _affinity(self, x: np.ndarray) -> float:
@@ -165,9 +159,33 @@ class FCSA:
                 pop[i] = Antibody(x=x, affinity=self._affinity(x), T=0, S=0)
 
     # ------------- main loop -------------
-    def optimize(self):
+    def optimize(self, progress: Callable[..., None] | None = None):
         pop = self._init_population()
         history = []  # best fitness per generation
+
+        if progress is not None:
+            self._progress = progress
+
+        # show what we have
+        print(f"[FCSA.optimize] has progress? {self._progress is not None}")
+
+        # >>> NEW: emit gen=0 snapshot so search-history has at least one frame
+        if self._progress is not None:
+            try:
+                pop_arr = np.stack([ab.x for ab in pop]).astype(float) if pop else np.empty((0, self.dim))
+                fit_arr = np.array([-ab.affinity for ab in pop], dtype=float)
+                best0 = max(pop, key=lambda ab: ab.affinity)
+                self._progress(gen=0,
+                        pop=pop_arr,
+                        fitness=fit_arr,
+                        best_fitness=-best0.affinity,
+                        gbest=best0.x.copy(),
+                        evals=self.eval_count)
+                        
+                print(f"[FCSA.optimize] emitted gen=0 frame; pop_arr shape={pop_arr.shape}")
+            except Exception as e:
+                print(f"[FCSA.optimize] failed to emit gen=0: {e}")
+        # <<< NEW
 
         for gen in range(self.max_gens):
             if self.eval_count >= self.max_evals:
@@ -186,6 +204,15 @@ class FCSA:
             # store both (fitness, position) and just fitness
             self.history_best.append((-best.affinity, best.x.copy()))
             history.append(-best.affinity)
+
+            # report per-generation metrics to provided progress logger/callback
+            if self._progress is not None:
+                try:
+                    pop_arr = np.stack([ab.x for ab in pop]) if len(pop) > 0 else np.empty((0, self.dim))
+                    fit_arr = np.array([-ab.affinity for ab in pop], dtype=float)
+                    self._progress(gen=gen+1, pop=pop_arr, fitness=fit_arr, best_fitness=-best.affinity, gbest=best.x.copy(), evals=self.eval_count)
+                except Exception:
+                    pass
 
             if self.eval_count >= self.max_evals:
                 break

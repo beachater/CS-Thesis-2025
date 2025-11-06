@@ -19,6 +19,7 @@ def get_function_by_name(name):
     if name == 'Schwefel': return Schwefel
     # Fixed dimension
     if name == 'HolderTable': return HolderTable
+    
 
 
 def Ackley(x, lb=-32.768, ub=32.768):

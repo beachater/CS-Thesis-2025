@@ -63,9 +63,11 @@ def MSHCSA(
     Maxage=6,               # gene-knockout max age
     archive_size=None,      # Np for archive (if None set to N)
     max_evals=None,         # max function evaluations (if None -> 10000*D)
+    max_gens=None,          # optional generation cap (new)
     use_modified_mutation=True,  # use Eq.(6) (two diff pairs) if True, otherwise Eq.(3)
     seed=None,
-    verbose=False
+    verbose=False,
+    progress=None          # optional progress logger
 ):
     rng = np.random.default_rng(seed)
     D = len(bounds) if D_dim is None else D_dim
@@ -78,6 +80,8 @@ def MSHCSA(
         archive_size = N
     if max_evals is None:
         max_evals = 10000 * D
+    if max_gens is None:
+        max_gens = 1000
 
     m = max(1, int(round(m_ratio * D)))  # number of dimensions used in recombination
     pbest_q = 0.1  # p used for current-to-pbest (top p% selection); paper uses q but typical SHADE uses 0.1~0.2
@@ -104,13 +108,17 @@ def MSHCSA(
     best = pop[best_idx].copy()
     best_val = float(fitness[best_idx])
 
+    # Track history
+    history = [best_val]
+
     # helper functions
     def modified_combinatorial_recombination(Xa, Xb, alpha=0.5, m=m):
         """Eq.(2) from paper: choose m dims indices (VA, VB), produce two offspring
            Using alpha blending on selected indices. Return Xp, Xq.
         """
-        idxA = rng.choice(D, size=m, replace=False)
-        idxB = rng.choice(D, size=m, replace=False)
+        m_eff = min(m, D)
+        idxA = rng.choice(D, size=m_eff, replace=False)
+        idxB = rng.choice(D, size=m_eff, replace=False)
         Xa_new = Xa.copy()
         Xb_new = Xb.copy()
         # apply for positions in idxA: Xa'_{VA} = alpha * Xa_VA + (1-alpha) * Xb_VB
@@ -121,7 +129,8 @@ def MSHCSA(
         return Xa_new, Xb_new
 
     # main loop
-    while FES < max_evals:
+    # stop either when FES budget exhausted or max generation reached
+    while FES < max_evals and gen <= max_gens:
         SF = []       # list of successful F values for this generation (for MF update)
         SF_deltas = []  # corresponding |f(X') - f(X)|
         # For each antibody (individual)
@@ -271,6 +280,8 @@ def MSHCSA(
                 rho = 5.0  # decay constant; paper mentions rho but not a fixed number. choose 5.0 as reasonable default.
                 alpha = np.exp(-rho * fstar)
                 M_mut = max(1, int(np.floor(alpha * D)) + 1)
+                # Ensure we do not request more indices than available dimensions
+                M_mut = min(M_mut, D)
 
                 idxs_mut = rng.choice(D, size=M_mut, replace=False)
                 if not use_modified_mutation:
@@ -357,6 +368,23 @@ def MSHCSA(
         pop = new_pop.copy()
         fitness = new_fitness.copy()
 
+        # Track history and report progress
+        history.append(best_val)
+        
+        # Report progress if logger provided
+        if progress is not None:
+            try:
+                progress(
+                    gen=gen-1,  # 0-based gen index
+                    pop=pop.copy(),
+                    fitness=fitness.copy(),
+                    best_fitness=best_val,
+                    gbest=best.copy(),
+                    evals=FES
+                )
+            except Exception:
+                pass
+
         gen += 1
         # safe stop if FES exceeded
         if FES >= max_evals:
@@ -370,7 +398,7 @@ def MSHCSA(
     if fitness[best_idx] < best_val:
         best_val = float(fitness[best_idx]); best = pop[best_idx].copy()
 
-    return best, best_val, pop, fitness
+    return best, best_val, pop, fitness, {"history": history}
 
 # ---------------- Example usage ----------------
 
@@ -382,7 +410,7 @@ if __name__ == "__main__":
 
     D = 10
     bounds = [(-5.12, 5.12)] * D
-    best_sol, best_val, pop, fit = MSHCSA(
+    best_sol, best_val, pop, fit, stats = MSHCSA(
         rastrigin,
         bounds,
         D_dim=D,

@@ -16,108 +16,122 @@ from openpyxl import load_workbook
 
 
 
-def iico(fun, max_FEs, n, dim, max_stagnation=3, seed=None, progress=None):
-    """IICO optimizer.
-    progress: optional callable that accepts an integer delta of function evaluations
-    and will be called each time the optimizer performs one (or more) evaluations.
+def iico(fun,
+         bounds,            # List[Tuple[lo, hi]]
+         dim,
+         max_FEs,
+         pop_size,
+         bench_func=None,   # kept for signature parity; not used here
+         seed=None,
+         progress=None):
     """
+    IICO optimizer with progress callback parity to FCSA/TSD.
+
+    Enforces BOTH:
+      - max iterations (num_it = 1000)
+      - max function evaluations (max_FEs, e.g., 350_000)
+
+    Calls: progress(gen, pop, fitness, best_fitness, gbest, evals) once per gen.
+    """
+    import math, random
+    import numpy as np
+
     if seed is not None:
-        import random
-        import numpy as np
         random.seed(seed)
         np.random.seed(seed)
-    # wrap the provided objective so that every call counts towards progress
-    _orig_fun = fun
-    def _fun_with_progress(x):
-        val = _orig_fun(x)
-        try:
-            if progress:
-                # report one evaluation per call
-                progress(1)
-        except Exception:
-            pass
-        return val
 
-    fun = _fun_with_progress
+    # Normalize bounds -> arrays (lb, ub) length dim
+    bounds = np.asarray(bounds, dtype=float)
+    if bounds.ndim == 2 and bounds.shape[0] == dim:
+        lb = bounds[:, 0]
+        ub = bounds[:, 1]
+    else:
+        lb = np.full(dim, float(bounds[0]), dtype=float)
+        ub = np.full(dim, float(bounds[1]), dtype=float)
 
-    _, lb, ub = fun([random.random() for _ in range(dim)])
+    def space_bound(vec):
+        v = np.asarray(vec, dtype=float)
+        np.clip(v, lb, ub, out=v)
+        return v.tolist()
 
-    pop = [[0. for _ in range(dim)] for _ in range(n)]
-    fitness_list = [float("inf") for _ in range(n)]
+    n = int(pop_size)
 
-    # Parameters
-    s_max = 2  # unimodal: 2, multimodal: 40
+    # ----- parameters -----
+    s_max = 2
     mu = 4
     exponent = 2
     gamma = 1e-19
     s_min = 0
-    sigma_initial = 0.5  # The initial value of standard deviation
-    sigma_final = 0.1  # The final value of standard deviation
+    sigma_initial = 0.5
+    sigma_final = 0.1
     beta = 100
-    minimum = 0.
-    # num_it = round(max_FEs / n)
-    num_it = 1000
+    minimum = 0.0
+    num_it = 1000               # <- hard cap on iterations
+    max_stagnation = 3
     stagnation_num = 0
 
     best_fitness_list = []
     FEs_counts = []
-    search_history = []
-    trajectory_first_dimension = []
-    average_fitness = []
-    history = []  # best fitness per generation
+    history = []
 
-
-    # Initialization
+    # ----- init population -----
     X = [random.random() for _ in range(dim)]
+    pop = [[0.0] * dim for _ in range(n)]
+    fitness_list = [float("inf")] * n
+
     for i in range(n):
-        if isinstance(lb, list):
-            for d in range(dim):
-                X[d] = mu * X[d] * (1 - X[d])
-                pop[i][d] = lb[d] + (ub[d] - lb[d]) * X[d]
-        else:
-            for d in range(dim):
-                X[d] = mu * X[d] * (1 - X[d])
-                pop[i][d] = lb + (ub - lb) * X[d]
+        for d in range(dim):
+            X[d] = mu * X[d] * (1 - X[d])
+            pop[i][d] = lb[d] + (ub[d] - lb[d]) * X[d]
         fitness_list[i] = fun(pop[i])[0]
 
     FEs = n
     FEs_counts.append(FEs)
 
+    # k as in original paper/code (depends on FE budget & pop size)
     k = 0.25 * max_FEs * (1 + s_max) / (s_max * n)
-    if isinstance(lb, list):
-        M = (ub[0] - lb[0]) / 2
-    else:
-        M = (ub - lb) / 2  # The mean variation interval of the variable
+    # mean variation interval (use first dim just like original)
+    M = float((ub[0] - lb[0]) / 2.0)
 
-    index = np.argmin(fitness_list)
-    gbest_fitness_value = fitness_list[index]
-    gbest = pop[index].copy()
+    idx = int(np.argmin(fitness_list))
+    gbest_fitness_value = float(fitness_list[idx])
+    gbest = pop[idx].copy()
     best_fitness_list.append(gbest_fitness_value)
 
-    delta_X = [[0. for _ in range(dim)] for _ in range(n)]
-    it = 1  # It's only a control parameter
-    iter_current = 1  # The current iteration number
+    delta_X = [[0.0] * dim for _ in range(n)]
+    it = 1
+    iter_current = 1
 
-    while FEs <= max_FEs:
+    # ---- gen 0 snapshot ----
+    if progress is not None:
+        try:
+            pop_arr = np.array(pop, dtype=float)
+            fit_arr = np.array(fitness_list, dtype=float)
+            progress(gen=0,
+                     pop=pop_arr,
+                     fitness=fit_arr,
+                     best_fitness=gbest_fitness_value,
+                     gbest=np.array(gbest, dtype=float),
+                     evals=FEs)
+        except Exception:
+            pass
+
+    # ================== main loop with BOTH caps ==================
+    while (FEs < max_FEs) and (iter_current <= num_it):
         Z = math.exp(-beta * it / k)
         if Z <= gamma:
-            beta = -math.log(10 * gamma) * k / it
+            beta = -math.log(10 * gamma) * k / max(it, 1)
             Z = math.exp(-beta * it / k)
 
-        # The standard deviation in the current iteration
-        sigma_iter = ((k - it) / (k - 1)) ** exponent * (sigma_initial - sigma_final) + sigma_final
-        alpha_iter = 10 * math.log(M) * Z
+        sigma_iter = ((k - it) / max(k - 1, 1)) ** exponent * (sigma_initial - sigma_final) + sigma_final
+        alpha_iter = 10 * math.log(max(M, 1e-12)) * Z
 
         f_best = min(fitness_list)
         f_worst = max(fitness_list)
-
         if f_best == f_worst:
-            NF = [1. for _ in range(n)]
+            NF = [1.0] * n
         else:
-            # The normalized fitness of each solution
-            NF = []
-            for i in range(n):
-                NF.append((fitness_list[i] - f_worst) / (f_best - f_worst))
+            NF = [(fitness_list[i] - f_worst) / (f_best - f_worst) for i in range(n)]
 
         y = round(n * (98 * (1 - it / k) + 2) / 100)
         if stagnation_num > max_stagnation and y > 1:
@@ -126,162 +140,173 @@ def iico(fun, max_FEs, n, dim, max_stagnation=3, seed=None, progress=None):
             stagnation_num = 0
         n_iter = max(y, 1)
 
+        # elite centroid F1
         sorted_ind = np.argsort(NF)
-        # The set of selected elite solutions
         ES = sorted_ind[:n_iter]
         F1 = []
         for d in range(dim):
-            sec = 0.
+            acc = 0.0
             for ES_i in ES:
-                sec = sec + NF[ES_i] * pop[ES_i][d]
-            F1.append(sec / n_iter)
+                acc += NF[ES_i] * pop[ES_i][d]
+            F1.append(acc / n_iter)
 
+        # E and A
         E = []
         for i in range(n):
             r = random.random()
             TT_i = [F1[d] * r for d in range(dim)]
             R = np.linalg.norm([pop[i][d] - TT_i[d] for d in range(dim)])
             E.append([(TT_i[d] - pop[i][d]) / (R + np.spacing(1)) for d in range(dim)])
+        A = [[20 * alpha_iter * E[i][d] for d in range(dim)] for i in range(n)]
 
-        A = []
+        XL, FL, XL_delta_X = [], [], []
+        XB, FB, XB_delta_X = [], [], []
+
+        # ----- clone & variation -----
         for i in range(n):
-            A.append([20 * alpha_iter * E[i][d] for d in range(dim)])
-
-        XL = []
-        FL = []
-        XL_delta_X = []
-        XB = []
-        FB = []
-        XB_delta_X = []
-
-        # Clone
-        for i in range(n):
-            # The number of offsprings generated from parent i
             S = math.floor(s_min + (s_max - s_min) * NF[i])
 
-            # Update the number of fitness evaluations
-            FEs = FEs + S
+            # FE guard: don't overshoot FE budget
+            if FEs >= max_FEs:
+                break
+            take = min(S, max(0, max_FEs - FEs))
+            FEs += take
 
-            for j in range(S):
+            for _ in range(take):
                 if random.random() < sigma_iter:
                     X_temp = [pop[i][d] + alpha_iter * random.gauss(0, 1) for d in range(dim)]
-                    space_bound(X_temp, dim, lb, ub)
+                    X_temp = space_bound(X_temp)
                     X_temp_fit = fun(X_temp)[0]
                     delta_temp = [random.random() * delta_X[i][d] + A[i][d] for d in range(dim)]
-                    XL.append(X_temp)
-                    FL.append(X_temp_fit)
-                    XL_delta_X.append(delta_temp)
+                    XL.append(X_temp); FL.append(X_temp_fit); XL_delta_X.append(delta_temp)
                 else:
                     delta_temp = [random.random() * delta_X[i][d] + A[i][d] for d in range(dim)]
                     X_temp = [pop[i][d] + delta_temp[d] for d in range(dim)]
-                    space_bound(X_temp, dim, lb, ub)
+                    X_temp = space_bound(X_temp)
                     X_temp_fit = fun(X_temp)[0]
 
                     if n_iter == 1:
-                        quasi_reflected = [0. for _ in range(dim)]
-                        if isinstance(lb, list):
-                            for d in range(dim):
-                                quasi_reflected[d] = random.uniform((lb[d] + ub[d]) / 2, X_temp[d])
-                        else:
-                            for d in range(dim):
-                                quasi_reflected[d] = random.uniform((lb + ub) / 2, X_temp[d])
+                        mid = (lb + ub) / 2.0
+                        quasi_reflected = [random.uniform(mid[d], X_temp[d]) for d in range(dim)]
                         quasi_reflected_fit = fun(quasi_reflected)[0]
                         if quasi_reflected_fit < X_temp_fit:
                             X_temp = quasi_reflected
                             X_temp_fit = quasi_reflected_fit
                     else:
-                        quasi_opposite = [0. for _ in range(dim)]
-                        if isinstance(lb, list):
-                            for d in range(dim):
-                                opposite = lb[d] + ub[d] - X_temp[d]
-                                quasi_opposite[d] = random.uniform((lb[d] + ub[d]) / 2, opposite)
-                        else:
-                            for d in range(dim):
-                                opposite = lb + ub - X_temp[d]
-                                quasi_opposite[d] = random.uniform((lb + ub) / 2, opposite)
+                        mid = (lb + ub) / 2.0
+                        opp = (lb + ub - np.array(X_temp))
+                        quasi_opposite = [random.uniform(mid[d], opp[d]) for d in range(dim)]
                         quasi_opposite_fit = fun(quasi_opposite)[0]
                         if quasi_opposite_fit < X_temp_fit:
                             X_temp = quasi_opposite
                             X_temp_fit = quasi_opposite_fit
-                    FEs += 1
-                    XB.append(X_temp)
-                    FB.append(X_temp_fit)
-                    XB_delta_X.append(delta_temp)
 
-        costs, X, delta_X_temp = omit_extra(fitness_list, pop, delta_X)
+                    # extra FE guard on this branch
+                    if FEs >= max_FEs:
+                        break
+                    FEs += 1
+                    XB.append(X_temp); FB.append(X_temp_fit); XB_delta_X.append(delta_temp)
+
+            if FEs >= max_FEs:
+                break
+
+        # selection helpers
+        def omit_extra(costs, XX, dX):
+            arr = list(zip(costs, XX, dX))
+            arr.sort(key=lambda t: t[0])
+            return [a[0] for a in arr], [a[1] for a in arr], [a[2] for a in arr]
+
+        costs, Xs, dXtemp = omit_extra(fitness_list, pop, delta_X)
         FL, XL, XL_delta_X = omit_extra(FL, XL, XL_delta_X)
         FB, XB, XB_delta_X = omit_extra(FB, XB, XB_delta_X)
 
         NL = min(math.ceil(sigma_iter * n), len(XL))
         u = n - NL
         NB = min(math.ceil(u * 0.9), len(XB))
-        NE = min(u - NB, len(X))
+        NE = min(u - NB, len(Xs))
         if NE == 0:
             if NB > 0:
-                NB = NB - 1
+                NB -= 1
             else:
-                NL = NL - 1
+                NL -= 1
             NE = 1
 
-        EX = []
-        E_costs = []
-        E_delta = []
+        # random injections (respect FE cap)
+        EX, E_costs, E_delta = [], [], []
+        need = n - (NB + NE + NL)
+        for _ in range(need):
+            if FEs >= max_FEs:
+                break
+            vec = [random.uniform(lb[d], ub[d]) for d in range(dim)]
+            EX.append(vec)
+            E_costs.append(fun(vec)[0])
+            FEs += 1
+            E_delta.append([0.0] * dim)
 
-        for i in range(n - (NB + NE + NL)):
-            if isinstance(lb, list):
-                EX.append([random.uniform(lb[d], ub[d]) for d in range(dim)])
-            else:
-                EX.append([random.uniform(lb, ub) for _ in range(dim)])
-            E_costs.append(fun(EX[i])[0])
-            FEs = FEs + 1
-            E_delta.append([0. for _ in range(dim)])
+        # rebuild population
+        pop[:NE] = Xs[:NE]
+        pop[NE:NE+NB] = XB[:NB]
+        pop[NE+NB:NE+NB+NL] = XL[:NL]
+        pop[NE+NB+NL:NE+NB+NL+len(EX)] = EX
 
-        pop[:NE] = X[:NE]
-        pop[NE:NE + NB] = XB[:NB]
-        pop[NE + NB: NE + NB + NL] = XL[:NL]
-        pop[NE + NB + NL: NE + NB + NL + len(EX)] = EX
         fitness_list[:NE] = costs[:NE]
-        fitness_list[NE:NE + NB] = FB[:NB]
-        fitness_list[NE + NB: NE + NB + NL] = FL[:NL]
-        fitness_list[NE + NB + NL: NE + NB + NL + len(EX)] = E_costs
-        delta_X[:NE] = delta_X[:NE]
-        delta_X[NE:NE + NB] = XB_delta_X[:NB]
-        delta_X[NE + NB: NE + NB + NL] = XL_delta_X[:NL]
-        delta_X[NE + NB + NL: NE + NB + NL + len(EX)] = E_delta
+        fitness_list[NE:NE+NB] = FB[:NB]
+        fitness_list[NE+NB:NE+NB+NL] = FL[:NL]
+        fitness_list[NE+NB+NL:NE+NB+NL+len(EX)] = E_costs
 
-        index = np.argmin(fitness_list)
+        delta_X[:NE] = dXtemp[:NE]
+        delta_X[NE:NE+NB] = XB_delta_X[:NB]
+        delta_X[NE+NB:NE+NB+NL] = XL_delta_X[:NL]
+        delta_X[NE+NB+NL:NE+NB+NL+len(EX)] = E_delta
 
-        if fitness_list[index] < gbest_fitness_value:
-            gbest = pop[index].copy()
-            gbest_fitness_value = fitness_list[index]
+        # update best
+        idx = int(np.argmin(fitness_list))
+        if fitness_list[idx] < gbest_fitness_value:
+            gbest = pop[idx].copy()
+            gbest_fitness_value = float(fitness_list[idx])
             stagnation_num = 0
         else:
             stagnation_num += 1
 
         best_fitness_list.append(gbest_fitness_value)
         FEs_counts.append(FEs)
+        history.append(gbest_fitness_value)
 
-        it = it + 1
+        # progress per generation
+        if progress is not None:
+            try:
+                pop_arr = np.array(pop, dtype=float)
+                fit_arr = np.array(fitness_list, dtype=float)
+                progress(gen=iter_current,
+                         pop=pop_arr,
+                         fitness=fit_arr,
+                         best_fitness=gbest_fitness_value,
+                         gbest=np.array(gbest, dtype=float),
+                         evals=FEs)
+            except Exception:
+                pass
+
+        it += 1
         iter_current += 1
 
-        if FEs >= max_FEs:
+        # stop if either cap is reached
+        if FEs >= max_FEs or iter_current > num_it or gbest_fitness_value == minimum:
             break
+    # ================== end loop ==================
 
-        if gbest_fitness_value == minimum:
-            break
-
-    if iter_current < num_it:
-        FEs_counts.extend([FEs for _ in range(num_it - iter_current)])
-        best_fitness_list.extend([gbest_fitness_value for _ in range(num_it - iter_current)])
+    # Keep legacy outputs trimmed/padded to exactly num_it points
+    if iter_current <= num_it:
+        best_fitness_list.extend([gbest_fitness_value] * (num_it - len(best_fitness_list)))
+        FEs_counts.extend([FEs] * (num_it - len(FEs_counts)))
     else:
         L = len(best_fitness_list)
         for i in range(num_it):
             ind = round(i * L / num_it)
             best_fitness_list[i] = best_fitness_list[ind]
             FEs_counts[i] = FEs_counts[ind]
+
     best_fitness_list = best_fitness_list[:num_it]
     FEs_counts = FEs_counts[:num_it]
-    # return best_fitness_list, gbest
     return best_fitness_list, gbest, {"history": best_fitness_list}
 
 
