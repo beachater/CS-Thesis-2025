@@ -1,0 +1,165 @@
+
+=== Benchmark: Schaffer 2 | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA', 'MSHCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Schaffer 4 | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA', 'MSHCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Ackley | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA', 'MSHCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Schaffer 2 | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA', 'MSHCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Schaffer 4 | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA', 'MSHCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Ackley | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA', 'MSHCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Schaffer 2 | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA', 'MSHCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Schaffer 4 | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA', 'MSHCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Ackley | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA', 'MSHCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Griewank | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA', 'MSHCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Schaffer 2 | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Schaffer 4 | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Ackley | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Griewank | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Schaffer 2 | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Schaffer 4 | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Ackley | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Griewank | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Rastrigin | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Shubert | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Eggholder | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Holdertable | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Schwefel | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Schaffer 2 | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Schaffer 4 | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Ackley | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Griewank | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Rastrigin | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Shubert | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Eggholder | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Holdertable | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2]
+
+
+=== Benchmark: Schwefel | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Levy | Dimension: 2 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+

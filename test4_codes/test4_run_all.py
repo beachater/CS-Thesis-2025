@@ -335,7 +335,7 @@ algorithms = [
     # Newly integrated CSA variants
     ("ADECSA", run_ade),
     ("DUSCSA", run_dus),
-    ("MSHCSA", run_msh),
+    #("MSHCSA", run_msh),
 
 
 
@@ -826,7 +826,7 @@ if __name__ == "__main__":
                     conv_fig = plt.figure(figsize=(10, 6))  # Convergence
                     avg_fig = plt.figure(figsize=(10, 6))   # Average Fitness
 
-                    n_runs = 2
+                    n_runs = 100
                     closeness_vals = {}
 
                     # NEW: store per-alg list of JSONs to combine later

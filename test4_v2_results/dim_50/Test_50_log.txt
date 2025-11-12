@@ -1,0 +1,65 @@
+
+=== Benchmark: Ackley | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA', 'MSHCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Ackley | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA', 'MSHCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Ackley | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Griewank | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Ackley | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Griewank | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Rastrigin | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Schwefel | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Ackley | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Griewank | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Rastrigin | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Schwefel | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
+
+=== Benchmark: Levy | Dimension: 50 ===
+  Algorithms: ['CSA', 'HybridBase', 'TSD', 'FCSA', 'IICO', 'ADECSA', 'DUSCSA']
+  Ordered dims: [2, 50, 100]
+
