@@ -1,0 +1,17 @@
+baseline_finals=C:\Users\Febron Sedoriosa\OneDrive\Documents\4th Year 2nd Sem\Thesis 2\CS-Thesis-2025\test4_v2_results\summary_test4_v2_finals_postprocessed.csv
+reference_finals=C:\Users\Febron Sedoriosa\OneDrive\Documents\4th Year 2nd Sem\Thesis 2\CS-Thesis-2025\test6_dmmo_adjsuted\sdcsa-substrate-drift-clonal-selection-algorithm\results_sdcsa_full_run01\summary_SDCSA_finals_postprocessed.csv
+graph_variant_manifest=C:\Users\Febron Sedoriosa\OneDrive\Documents\4th Year 2nd Sem\Thesis 2\CS-Thesis-2025\test4_v2_results\graphs_variant_sdcsa_v2\manifest_variant_rules.txt
+output_dir=C:\Users\Febron Sedoriosa\OneDrive\Documents\4th Year 2nd Sem\Thesis 2\CS-Thesis-2025\test4_v2_results\wilcoxon_variant_sdcsa_v2
+exclude_algorithms=['IICO', 'MSHCSA']
+rename_algorithm={'TSD': 'SDCSA', 'HybridBase': 'FCSA-IICO'}
+algorithm_order=['SDCSA', 'FCSA', 'FCSA-IICO', 'CSA', 'ADECSA', 'DUSCSA']
+reference_algorithm_display=SDCSA
+reference_algorithm_raw=SDCSA
+compared_algorithms_display=['FCSA', 'FCSA-IICO', 'CSA', 'ADECSA', 'DUSCSA']
+compared_algorithms_raw=['FCSA', 'HybridBase', 'CSA', 'ADECSA', 'DUSCSA']
+graph_variant_sdsca_note=Final graph label 'SDCSA' came from baseline TSD, but this Wilcoxon analysis uses actual SDCSA finals as the reference algorithm.
+source_priority=raw run_*_per_gen.csv folders first; postprocessed finals CSV only as fallback
+test=Wilcoxon signed-rank
+alternative=two-sided
+zero_method=pratt
+alpha=0.05
